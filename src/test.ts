@@ -17,7 +17,7 @@ app.use(BodyParser.json({ strict: false }))
 app.use(express.static(path.join(__dirname, "..", "static")))
 
 //Session-Crossover implementation on Express
-app.use(Session.implement({
+app.use(Session.deploy({
     path: path.join(__dirname, "..", "session"),
     expires: 1
 }))
