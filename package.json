@@ -1,0 +1,37 @@
+{
+  "name": "session-crossover",
+  "version": "0.0.1",
+  "description": "A NodeJS package that stores the current session into encrypted TS files (compatible with Express and Socket.io).",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon dist/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dr-NULL/Session-Crossover.git"
+  },
+  "keywords": [
+    "cookie",
+    "session",
+    "express",
+    "socket.io"
+  ],
+  "author": "Felipe Silva <silvaaguilarfelipe@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dr-NULL/Session-Crossover/issues"
+  },
+  "homepage": "https://github.com/Dr-NULL/Session-Crossover#readme",
+  "dependencies": {
+    "@types/node": "^12.11.2"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.17.1",
+    "@types/express": "^4.17.1",
+    "@types/socket.io": "^2.1.4",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "nodemon": "^1.19.4",
+    "socket.io": "^2.3.0"
+  }
+}
