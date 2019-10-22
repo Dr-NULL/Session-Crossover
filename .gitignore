@@ -1,0 +1,5 @@
+# Paquetes de Node
+node_modules
+
+# Carpeta Producción
+dist/*
