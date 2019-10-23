@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, "..", "static")))
 
 //Session-Crossover implementation on Express
 app.use(Session.deploy({
+    cookieName: "ayyy",
     path: path.join(__dirname, "..", "session"),
     expires: 5,
     isEncrypted: true
