@@ -1,4 +1,68 @@
 # Session-Crossover
 
-A NodeJS package that stores the current session into encrypted TS files (compatible with Express and Socket.io).
+A NodeJS package that stores the current session into encrypted TS files (compatible with Express and Socket.io). This package includes their respectives types.d.ts (for Typescript).
 
+## Implementation:
+For install this package, use npm: 
+```(powershell)
+npm install --save session-crossover
+```
+Later, for implement with __ExpressJS__ do you call the `*.deploy({ ... })` method into the `app.use( here )` in __ExpressJS__. Here is an example:
+```(typescript)
+import express from "express"
+import * as Session from "session-crossover"
+
+const app = express()
+//↓↓↓↓ This is the Session-Crossover Implementation ↓↓↓↓
+app.use(Session.deploy({
+    path: path.join(__dirname, "..", "session"),
+    expires: 5,
+    isEncrypted: true
+}))
+//↑↑↑↑ This is the Session-Crossover Implementation ↑↑↑↑
+```
+
+## Configuration
+
+When you typing the `*.deploy({ ... })` method, this will request an object with some configuration parameters, such as:
+- `path: string` - Path of the folder will be storage all sessions. If the folder doesn't exists, the own library will create the folder when its necesary.
+- `expiration: number` - Amount of minutes than the session will be alive.
+- `isEncrypted: boolean` - If you need to encrypt the session ID at the client side.
+- `cookieName: string` - The name of the cookie than save the session ID.
+
+## Usage
+
+In the request object (of ExpressJS) will appears an property called `session`. There is an example of usage:
+```(typescript)
+import express from "express"
+import * as Session from "session-crossover"
+
+//Implementation
+const app = express()
+app.use(Session.deploy({
+    path: path.join(__dirname, "..", "session"),
+    expires: 5,
+    isEncrypted: true
+}))
+
+//Usage
+app.get("/new", (req, res) => {
+    //Creates a new Session
+    req.session.new()
+
+    //Adding an object has value
+    req.session.data = {
+        text: "jajaja dale men relax",
+        value: 555
+    }
+
+    res.redirect("/")
+})
+
+//Initializes the server
+app.listen(80, () => {
+    console.clear()
+    console.log("Ready!")
+    console.log("Listening...")
+})
+```
