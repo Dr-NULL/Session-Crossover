@@ -4,3 +4,4 @@ node_modules
 # Carpetas de prueba
 src/test.ts
 static
+session

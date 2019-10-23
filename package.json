@@ -1,8 +1,8 @@
 {
   "name": "session-crossover",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A NodeJS package that stores the current session into encrypted TS files (compatible with Express and Socket.io).",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "nodemon dist/test.js",
     "build": "tsc"
