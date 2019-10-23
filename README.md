@@ -59,6 +59,11 @@ app.get("/new", (req, res) => {
     res.redirect("/")
 })
 
+app.get("/", (req, res) => {
+    //Show session data
+    res.send(req.session.data)
+})
+
 //Initializes the server
 app.listen(80, () => {
     console.clear()
