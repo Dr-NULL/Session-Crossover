@@ -1,6 +1,6 @@
 {
   "name": "session-crossover",
-  "version": "0.0.4",
+  "version": "0.0.8",
   "description": "A NodeJS package that stores the current session into encrypted TS files (compatible with Express and Socket.io).",
   "main": "dist/index.js",
   "scripts": {
