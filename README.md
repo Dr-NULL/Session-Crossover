@@ -8,7 +8,7 @@ For install this package, use npm:
 npm install --save session-crossover
 ```
 Later, for implement with __ExpressJS__ do you call the `*.deploy({ ... })` method into the `app.use( here )` in __ExpressJS__. Here is an example:
-```(typescript)
+```ts
 import express from "express"
 import * as Session from "session-crossover"
 
@@ -33,7 +33,7 @@ When you typing the `*.deploy({ ... })` method, this will request an object with
 ## Usage
 
 In the request object (of ExpressJS) will appears an property called `session`. There is an example of usage:
-```(typescript)
+```ts
 import express from "express"
 import * as Session from "session-crossover"
 
