@@ -19,13 +19,42 @@ app.use(express.static(path.join(__dirname, "..", "static")))
 //Session-Crossover implementation on Express
 app.use(Session.deploy({
     path: path.join(__dirname, "..", "session"),
-    expires: 1
+    expires: 5,
+    isEncrypted: true
 }))
 
 //Listeners
+app.get("/new", (req, res) => {
+    req.session.new()
+    req.session.data = {
+        text: "jajaja dale men relax",
+        value: 555
+    }
+
+    res.redirect("/")
+})
+
+app.get("/kill", (req, res) => {
+    req.session.kill()
+
+    res.redirect("/")
+})
+
+
 app.get("/", (req, res) => {
-    console.log("this is an Endpoint...\n")
-    res.send({ text: "non" })
+    if (req.session.isCreated) {    
+        res.send({
+            sessionId: req.session.id,
+            isCreated: req.session.isCreated,
+            value: req.session.data
+        })
+    } else {
+        res.send({
+            sessionId: req.session.id,
+            isCreated: req.session.isCreated,
+            value: null
+        })
+    }
 })
 app.listen(80, () => {
     console.clear()

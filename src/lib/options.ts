@@ -1,10 +1,10 @@
 export interface Options {
-    /**Carpeta en la cual se guardarán los datos */
+    /**Folder that will has the session files */
     path: string;
-    /**Tiempo de vida de la sesión (min) */
+    /**Lifetime (in min) that will has the session */
     expires: number;
-    /**Nombre de la cookie que contendrá la función */
+    /**Name of the cookie that will has on the client-side */
     cookieName?: string;
-    /**Encriptar o no el archivo */
-    encrypted?: boolean;
+    /**`true` if you want to encrypt the ID into the client-side */
+    isEncrypted?: boolean;
 }
