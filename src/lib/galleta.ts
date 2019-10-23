@@ -8,12 +8,7 @@ export function getValue(cookies: string, name: string) {
     for (let i = 0; i < stage1.length; i++) {
         let data = stage1[i].split("=");
         if (data[0] == name) {
-            let parsed: any
-            try {
-                parsed = JSON.parse(data[1]);
-            } catch {
-                parsed = data[1]
-            }
+            let parsed: any = JSON.parse(data[1])
             if (parsed == "") {
                 parsed = null
             }
