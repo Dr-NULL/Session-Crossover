@@ -7,7 +7,7 @@ export function getValue(cookies: string, name: string) {
     let value = null;
     for (let i = 0; i < stage1.length; i++) {
         let data = stage1[i].split("=");
-        if (data[0] == name) {
+        if (data[0].trim() == name) {
             let parsed: any = data[1]
             if (parsed == "") {
                 parsed = null
