@@ -98,7 +98,11 @@ export class Session{
 
         if ((!this._isCreated) && (value != null)) {
             this._response.clearCookie(this._options.cookieName)
-            this._id = makeId(req.ip)
+            if(this._options.isEncrypted) {
+                this._id = encrypt.decrypt(value)
+            } else {
+                this._id = value
+            }
             this._file = getFile(this._id, this._options.path)
         }
     }
