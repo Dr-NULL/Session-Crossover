@@ -137,7 +137,21 @@ export class Session{
         }
         this._file.writeSync(JSON.stringify(this._raw))
         let timer = setTimeout(() => {
-            this._file.kill()
+            if(this._options.whenDies != null) {
+                if (this._file.existsSync) {
+                    this._options.whenDies(this.data)
+                    this._file.kill()
+                } else {
+                    this._options.whenDies(null)
+                }
+            }
+
+            for (let i = 0; i < clocks.length; i++) {
+                if (clocks[i].id == this.id) {
+                    clocks.splice(i, 1)
+                    break
+                }
+            }
         }, this._expires);
 
         clocks.push({

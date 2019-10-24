@@ -27,8 +27,9 @@ app.use(Session.deploy({
 When you typing the `*.deploy({ ... })` method, this will request an object with some configuration parameters, such as:
 - `path: string` - Path of the folder will be storage all sessions. If the folder doesn't exists, the own library will create the folder when its necesary.
 - `expiration: number` - Amount of minutes than the session will be alive.
-- `isEncrypted: boolean` - If you need to encrypt the session ID at the client side.
-- `cookieName: string` - The name of the cookie than save the session ID.
+- `isEncrypted: boolean` - __[optional]__ If you need to encrypt the session ID at the client side.
+- `cookieName: string` - __[optional]__ The name of the cookie than save the session ID.
+- `whenDies: (data: any) => void` - __[optional]__ A function that will be executed when the current session dies.
 
 ## Usage
 
@@ -42,7 +43,16 @@ const app = express()
 app.use(Session.deploy({
     path: path.join(__dirname, "..", "session"),
     expires: 5,
-    isEncrypted: true
+    isEncrypted: true,
+    cookieName: "ayyy_lmao",
+    whenDies: data => {
+        if (data != null) {
+            console.log("The session will be killed!")
+            console.log(data)
+        } else {
+            console.log("The file doesn't exist...")
+        }
+    }
 }))
 
 //Usage

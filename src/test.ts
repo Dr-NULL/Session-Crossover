@@ -20,8 +20,16 @@ app.use(express.static(path.join(__dirname, "..", "static")))
 app.use(Session.deploy({
     cookieName: "ayyy",
     path: path.join(__dirname, "..", "session"),
-    expires: 5,
-    isEncrypted: true
+    expires: 1,
+    isEncrypted: true,
+    whenDies: data => {
+        if (data != null) {
+            console.log("The session will be killed!")
+            console.log(data)
+        } else {
+            console.log("The file doesn't exist...")
+        }
+    }
 }))
 
 //Listeners

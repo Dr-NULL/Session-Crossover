@@ -7,4 +7,8 @@ export interface Options {
     cookieName?: string;
     /**`true` if you want to encrypt the ID into the client-side */
     isEncrypted?: boolean;
+    /**A function that will be executes when the current sesion expires
+     * @param data The saved value stored into the session
+    */
+    whenDies?: (data: any) => void;
 }
