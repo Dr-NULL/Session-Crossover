@@ -144,6 +144,10 @@ export class Session{
                 } else {
                     this._options.whenDies(null)
                 }
+            } else {
+                if (this._file.existsSync) {
+                    this._file.kill()
+                } 
             }
 
             for (let i = 0; i < clocks.length; i++) {
