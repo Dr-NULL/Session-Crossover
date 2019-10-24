@@ -1,11 +1,11 @@
-# Session-Crossover
+# Express JSON Session
 
-A NodeJS package that stores the current session into encrypted TS files (compatible with Express and Socket.io). This package includes their respectives types.d.ts (for Typescript).
+A NodeJS package that stores the current session into encrypted TS files for ExpressJS. This package includes their respectives types.d.ts (for Typescript).
 
 ## Implementation:
 For install this package, use npm: 
-```(powershell)
-npm install --save session-crossover
+```powershell
+npm install --save express-json-session
 ```
 Later, for implement with __ExpressJS__ do you call the `*.deploy({ ... })` method into the `app.use( here )` in __ExpressJS__. Here is an example:
 ```ts
@@ -53,7 +53,7 @@ app.get("/new", (req, res) => {
     //Adding an object has value
     req.session.data = {
         text: "jajaja dale men relax",
-        value: 555
+        value: 666
     }
 
     res.redirect("/")

@@ -1,7 +1,7 @@
 import express from "express"
 import { Request, Dictionary } from "express-serve-static-core"
 
-import * as Galleta from "./galleta";
+import * as Galleta from "../tool/galleta";
 import { Options } from "./options";
 import { makeId } from "./make-id";
 import { getFile } from "./get-file";
