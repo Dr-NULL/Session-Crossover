@@ -3,38 +3,34 @@ import crypto from "crypto"
 class Secret {
     private _key: Buffer
     public get key() {
-        return this._key.toString("utf-8")
+        return this._key.toString("utf8")
     }
     public get keyArray() {
-        let key = this.key
-        return key.split("").map(item => { return item.charCodeAt(0) })
+        return this._key.toJSON().data
     }
     public set key(value: string) {
-        this._key = Buffer.alloc(this._key.length)
-        this._key.write(value, "utf-8")
+        this._key = Buffer.alloc(16)
+        this._key.write(value, "utf8")
     }
     public set keyArray(v: number[]) {
-        let value = v.reduce((prev, next) => { return prev + String.fromCharCode(next) }, "")
-        this._key = Buffer.alloc(this._key.length)
-        this._key.write(value, "utf-8")
+        let tmp = Buffer.from(v)
+        this._key = Buffer.alloc(16, tmp, "utf8")
     }
 
     private _iv: Buffer
     public get iv() {
-        return this._iv.toString("utf-8")
+        return this._iv.toString("utf8")
     }
     public get ivArray() {
-        let iv = this.iv
-        return iv.split("").map(item => { return item.charCodeAt(0) })
+        return this._iv.toJSON().data
     }
     public set iv(value: string) {
-        this._iv = Buffer.alloc(this._iv.length)
-        this._iv.write(value, "utf-8")
+        this._iv = Buffer.alloc(8)
+        this._iv.write(value, "utf8")
     }
     public set ivArray(v: number[]) {
-        let value = v.reduce((prev, next) => { return prev + String.fromCharCode(next) }, "")
-        this._iv = Buffer.alloc(this._iv.length)
-        this._iv.write(value, "utf-8")
+        let tmp = Buffer.from(v)
+        this._iv = Buffer.alloc(8, tmp, "utf8")
     }
 
     constructor() {
@@ -59,7 +55,7 @@ class Secret {
             cipher.final()
         ])
 
-        return data.toString("utf-8")
+        return data.toString("utf8")
     }
 }
 export default Secret
