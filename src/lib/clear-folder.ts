@@ -1,13 +1,14 @@
 import * as fs from "fs";
 
 export let clearFolder = (path: string) => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(resolve => {
         path = path.replace(/\\/gi, "/")
         fs.readdir(path, (err, files) => {
             if (err != null) {
-                reject(err)
+                fs.mkdirSync(path, { recursive: true })
+            }
 
-            } else {
+            if (files != undefined) {
                 files.forEach(file => {
                     fs.unlinkSync(`${path}/${file}`)
                 })

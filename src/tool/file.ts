@@ -1,4 +1,5 @@
 import * as fs from "fs"
+import * as path from "path"
 
 export class File {
     private _name : string;
@@ -100,9 +101,16 @@ export class File {
 
 
     public readSync() {
-        return fs.readFileSync(this.fullPath, {
-            encoding: "utf8"
-        })
+        try {
+            return fs.readFileSync(this.fullPath, {
+                encoding: "utf8"
+            })
+        } catch {
+            fs.mkdirSync(this.fullPath, { recursive: true })
+            return fs.readFileSync(this.fullPath, {
+                encoding: "utf8"
+            })
+        }
     }
 
     public write(data: string) {
