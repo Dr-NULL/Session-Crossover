@@ -1,6 +1,4 @@
 import { File } from "../tool/file"
-import { encrypt } from "..";
-import { Options } from "./options";
 
 export let getFile = (id: string, path: string) => {
     //Make Paths

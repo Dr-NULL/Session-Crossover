@@ -6,7 +6,7 @@ import { Options } from "./options";
 import { makeId } from "./make-id";
 import { getFile } from "./get-file";
 
-import { encrypt, clocks } from "..";
+import { encrypt, clocks } from "../const";
 import { File } from "../tool/file"
 
 export class Session{

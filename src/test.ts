@@ -4,7 +4,7 @@ import SocketIO from "socket.io"
 
 import BodyParser from "body-parser"
 import * as path from "path"
-import * as Session from "./index"
+import { crossover } from "./index"
 
 //Initial implementation
 const app = express()
@@ -17,9 +17,9 @@ app.use(BodyParser.json({ strict: false }))
 app.use(express.static(path.join(__dirname, "..", "static")))
 
 //Session-Crossover implementation on Express
-app.use(Session.deploy({
+app.use(crossover({
     cookieName: "ayyy",
-    path: path.join(__dirname, "..", "session"),
+    path: `d:\\Projects\\Programming\\Session-Crossover\\data\\session\\`,
     expires: 1,
     isEncrypted: true,
     whenDies: data => {
