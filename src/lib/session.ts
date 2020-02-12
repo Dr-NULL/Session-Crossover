@@ -48,7 +48,7 @@ export class Session{
     private _raw: { id: string, expires: number, data: any }
     public get data() : any {
         if (this._isCreated) {
-            this._raw = JSON.parse(this._file.readSync())
+            this._raw = JSON.parse(this._file.readTextSync())
             return this._raw.data;
         } else {
             throw("The session wasn't yet created, so you can't read data.")
@@ -56,10 +56,10 @@ export class Session{
     }
     public set data(v : any) {
         if (this._isCreated) {
-            this._raw = JSON.parse(this._file.readSync())
+            this._raw = JSON.parse(this._file.readTextSync())
             this._raw.data = v;
     
-            this._file.writeSync(JSON.stringify(this._raw))
+            this._file.writeTextSync(JSON.stringify(this._raw))
         } else {
             throw("The session wasn't yet created, so you can't write data.")
         }
@@ -94,7 +94,7 @@ export class Session{
 
         //Get file
         this._file = getFile(this._id, this._options.path)
-        this._isCreated = this._file.existsSync
+        this._isCreated = this._file.exist
 
         if ((!this._isCreated) && (value != null)) {
             this._response.clearCookie(this._options.cookieName)
@@ -135,17 +135,17 @@ export class Session{
             expires: this._expires,
             data: null
         }
-        this._file.writeSync(JSON.stringify(this._raw))
+        this._file.writeTextSync(JSON.stringify(this._raw))
         let timer = setTimeout(() => {
             if(this._options.whenDies != null) {
-                if (this._file.existsSync) {
+                if (this._file.exist) {
                     this._options.whenDies(this.data)
                     this._file.kill()
                 } else {
                     this._options.whenDies(null)
                 }
             } else {
-                if (this._file.existsSync) {
+                if (this._file.exist) {
                     this._file.kill()
                 } 
             }
@@ -173,7 +173,7 @@ export class Session{
         }
 
         clearTimeout(clocks[i].timer)
-        if (this._file.existsSync) {
+        if (this._file.exist) {
             this._file.kill()
         }
         this._raw = {

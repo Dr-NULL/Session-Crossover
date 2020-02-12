@@ -1,7 +1,6 @@
-import * as fs from "fs"
-import * as path from "path"
+import * as fs from "fs";
 
-export class File {
+export class File{
     private _name : string;
     public get name() : string {
         return this._name;
@@ -16,7 +15,7 @@ export class File {
 
         this._name = v;
     }
-    
+
     private _folder : string;
     public get folder() : string {
         return this._folder;
@@ -48,115 +47,126 @@ export class File {
     public get fullPath(): string {
         return this._folder + this._name
     }
-    public get fullPathUrl(): string {
-        let url = this._folder + this._name
-        url = url.replace(/\\/gi, "/")
-        url = url.replace(/^\//gi, "")
-        url = "file:///" + url
 
-        return url
+    public get exist(): boolean {
+        return fs.existsSync(this.fullPath)
     }
-    
-    constructor(path: string) {
+
+    public constructor(path: string) {
         //Get folder and filename
         let tmp = path.replace(/(\\|\/)(.(?!(\\|\/)))+.$/gi, "")
 
         this._folder = tmp + "/"
+        this._folder = this.folder.replace(/^(\\|\/)+/gi, "/")
         this._name = path.replace(tmp, "")
         this._name = this._name.replace(/^(\\|\/)+/gi, "")
     }
 
-    public get exists() {
-        return new Promise<boolean>((resolve, reject) => {
-            fs.access(this.fullPath, (err) => {
-                if (err != null) {
-                    resolve(false)
-                } else {
-                    resolve(true)
-                }
-            })
-        })
-    }
-
-    public get existsSync() {
-        try {
-            fs.accessSync(this.fullPath)
-            return true
-        } catch {
-            return false
+    public new(){
+        if (this.exist) {
+            //Borrar archivo actual
+            fs.unlinkSync(this.fullPath)
         }
+
+        this.createFolder()
+        fs.writeFileSync(this.fullPath, "", { encoding: "utf8" })
     }
 
     public read() {
-        return new Promise<string>(async(resolve, reject) => {
+        return new Promise<Buffer>((resolve, reject) => {
             fs.readFile(this.fullPath, (fail, data) => {
-                if (fail == null) {
-                    resolve(data.toString("utf-8"))
+                if (fail != null) {
+                    reject(`No es posible leer el archivo.\nPath = "${this.fullPath}"`)
                 } else {
-                    reject()
+                    resolve(data)
                 }
             })
         })
     }
-
 
     public readSync() {
         try {
-            return fs.readFileSync(this.fullPath, {
-                encoding: "utf8"
-            })
+            return fs.readFileSync(this.fullPath)
         } catch {
-            fs.mkdirSync(this.fullPath, { recursive: true })
-            return fs.readFileSync(this.fullPath, {
-                encoding: "utf8"
-            })
+            throw "No es posible leer el archivo."
         }
     }
 
-    public write(data: string) {
-        return new Promise<void>(async (resolve, reject) => {
-            let write = () => {
-                fs.writeFile(this.fullPath, data, { encoding: "utf8" }, (fail) => {
-                    if (fail == null) {
-                        resolve()
-                    } else {
-                        reject()
-                    }
-                })
-            }
-
-            fs.access(this._folder, err => {
-                if (err != null) {
-                    fs.mkdir(this._folder, () => {
-                        write()
-                    })
+    public readText() {
+        return new Promise<string>((resolve, reject) => {
+            fs.readFile(this.fullPath, (fail, data) => {
+                if (fail != null) {
+                    reject(`No es posible leer el archivo.\nPath = "${this.fullPath}"`)
                 } else {
-                    write()
+                    resolve(data.toString("utf8"))
                 }
             })
-
         })
     }
 
-    public writeSync(data: string) {
-        //Testing the path
+    public readTextSync() {
         try {
-            fs.accessSync(this._folder)
+            return fs.readFileSync(this.fullPath).toString("utf8")
         } catch {
-            fs.mkdirSync(this._folder)
+            throw `No es posible leer el archivo.\nPath = "${this.fullPath}"`
         }
+    }
 
-        fs.writeFileSync(this.fullPath, data, {
-            encoding: "utf8",
-            flag: "w"
+    public write(data: Buffer){
+        return new Promise<void>((resolve, reject) => {
+            this.createFolder()
+            fs.writeFile(this.fullPath, data, fail => {
+                if (fail != null) {
+                    reject(`No es posible escribir el archivo.\nPath = "${this.fullPath}"`)
+                } else {
+                    resolve()
+                }
+            })
         })
+    }
+
+    public writeSync(data: Buffer) {
+        try {
+            this.createFolder()
+            fs.writeFileSync(this.fullPath, data)
+        } catch (err) {
+            throw `No es posible escribir el archivo.\nPath = "${this.fullPath}"`
+        }
+    }
+
+    public writeText(data: string){
+        return new Promise<void>((resolve, reject) => {
+            this.createFolder()
+            fs.writeFile(this.fullPath, data, { encoding: "utf8" }, fail => {
+                if (fail != null) {
+                    reject(`No es posible escribir el archivo.\nPath = "${this.fullPath}"`)
+                } else {
+                    resolve()
+                }
+            })
+        })
+    }
+
+    public writeTextSync(data: string) {
+        try {
+            this.createFolder()
+            fs.writeFileSync(this.fullPath, data, { encoding: "utf8" })
+        } catch {
+            throw `No es posible escribir el archivo.\nPath = "${this.fullPath}"`
+        }
     }
 
     public kill() {
-        //Eliminar de origen
-        fs.unlinkSync(
-            this._folder + this._name
-        )
+        try {
+            fs.unlinkSync(this.fullPath)
+        } catch {
+            throw `No es posible eliminar el archivo.\nPath = "${this.fullPath}"`
+        }
+    }
+
+    private createFolder() {
+        if (!fs.existsSync(this.folder)) {
+            fs.mkdirSync(this.folder)
+        }
     }
 }
-export default File
