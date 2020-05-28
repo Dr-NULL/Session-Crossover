@@ -1,12 +1,15 @@
 {
   "name": "session-crossover",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A NodeJS package that stores the current session into encrypted TS files for ExpressJS.",
   "main": "dist/index.js",
   "scripts": {
     "test": "nodemon dist/test.js",
-    "build": "tsc"
+    "prepare": "tsc"
   },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Dr-NULL/Session-Crossover.git"
