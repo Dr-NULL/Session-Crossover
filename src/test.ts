@@ -1,71 +1,71 @@
-import express from "express"
-import { createServer } from "http" 
-import SocketIO from "socket.io"
+import express from 'express';
+import * as crossover from '.';
+import { resolve } from 'path';
 
-import BodyParser from "body-parser"
-import * as path from "path"
-import { crossover } from "./index"
-
-//Initial implementation
 const app = express()
-const http = createServer(app)
-const io = SocketIO(http)
-
-//Initial configuration
-app.use(BodyParser.urlencoded({ extended: false }))
-app.use(BodyParser.json({ strict: false }))
-app.use(express.static(path.join(__dirname, "..", "static")))
-
-//Session-Crossover implementation on Express
-app.use(crossover({
-    cookieName: "ayyy",
-    path: `d:\\Projects\\Programming\\Session-Crossover\\data\\session\\`,
-    expires: 1,
-    isEncrypted: true,
-    whenDies: data => {
-        if (data != null) {
-            console.log("The session will be killed!")
-            console.log(data)
-        } else {
-            console.log("The file doesn't exist...")
-        }
-    }
+app.use(crossover.deploy({
+  path: resolve('data'),
+  cookieName: 'gegege',
+  expires: 1,
+  aesType: 'aes-192-gcm',
+  filenameLength: 64,
+  callback: () => {
+    console.log('die!')
+  }
 }))
 
-//Listeners
-app.get("/new", (req, res) => {
-    req.session.new()
-    req.session.data = {
-        text: "jajaja dale men relax",
-        value: 555
-    }
+app.get('/', (req, res) => {
+  if (req.session.current) {
+    // Return the session data
+    const data = req
+      .session
+      .current
+      .getData()
 
-    res.redirect("/")
+    res.send(data)
+  } else {
+    // Create a new session
+    req.session.create()
+
+    // Set data to the session
+    req.session.current.setData({
+      number: Math.random() * 10000,
+      text: 'Random Number'
+    })
+    res.send('Session created successfully.')
+  }
 })
 
-app.get("/kill", (req, res) => {
-    req.session.kill()
-
-    res.redirect("/")
+app.get('/get', (req, res) => {
+  if (req.session.current) {
+    res.send(req.session.current.getData())
+  } else {
+    res.send('No hay sesión creada...')
+  }
 })
 
-
-app.get("/", (req, res) => {
-    if (req.session.isCreated) {    
-        res.send({
-            sessionId: req.session.id,
-            isCreated: req.session.isCreated,
-            value: req.session.data
-        })
-    } else {
-        res.send({
-            sessionId: req.session.id,
-            isCreated: req.session.isCreated,
-            value: null
-        })
-    }
+app.get('/set/:data?', (req, res) => {
+  if (req.session.current) {
+    req.session.current.setData({
+      number: Math.random() * 10000,
+      text: req.params.data
+    })
+    res.send(req.session.current.getData())
+  } else {
+    res.send('No hay sesión creada...')
+  }
 })
+
+app.get('/delete', (req, res) => {
+  if (req.session.current) {
+    req.session.delete()
+    res.send('Sesión asesinada con éxito!')
+  } else {
+    res.send('No hay sesión para matar...')
+  }
+})
+
 app.listen(80, () => {
-    console.clear()
-    console.log("Tests Initialization...")
+  console.clear()
+  console.log('Ready!')
 })

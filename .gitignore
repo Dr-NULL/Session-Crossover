@@ -1,9 +1,0 @@
-# Paquetes de Node
-node_modules
-
-# Carpeta Producción
-dist/*
-
-# Tests de Sesiones
-session
-data

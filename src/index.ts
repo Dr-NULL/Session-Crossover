@@ -1,11 +1,5 @@
-export { deploy as crossover } from "./lib/deploy"
+export { SessionManager } from './lib/interfaces/session-manager';
+export { Session } from './lib/interfaces/session';
 
-//Types
-import { Session } from "./lib/session";
-declare global {
-    namespace Express {
-        export interface Request{
-            session: Session
-        }
-    }
-}
+import { Main } from './lib/main';
+export const deploy = Main.deploy
