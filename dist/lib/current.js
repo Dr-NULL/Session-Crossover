@@ -5,8 +5,8 @@ class Current {
     constructor(file) {
         this._file = file;
         const json = this.read();
-        this._created = json.created;
-        this._expires = json.expires;
+        this._created = new Date(json.created);
+        this._expires = new Date(json.expires);
     }
     get file() {
         return this._file;

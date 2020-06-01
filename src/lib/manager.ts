@@ -65,6 +65,7 @@ export class Manager implements SessionManager {
       {
         path: '/',
         httpOnly: true,
+        sameSite: 'strict',
         expires: new Date(Date.now() + expires),
       }
     )

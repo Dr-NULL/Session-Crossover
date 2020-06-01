@@ -1,6 +1,6 @@
 {
   "name": "session-crossover",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "A NodeJS package that stores the current session into encrypted JSON for ExpressJS.",
   "main": "dist/index.js",
   "scripts": {
