@@ -112,7 +112,7 @@ export class Manager implements SessionManager {
 
     // Matar cookie
     const name = Main.encr(Main.opt.cookieName)
-    this._res.clearCookie(name, { path: '/' })
+    this._res.clearCookie(name)
 
     // Matar archivo
     if (this._current.file.exists) {
