@@ -42,6 +42,7 @@ class Manager {
         this._res.cookie(main_1.Main.encr(main_1.Main.opt.cookieName), main_1.Main.encr(id), {
             path: '/',
             httpOnly: true,
+            sameSite: 'strict',
             expires: new Date(Date.now() + expires),
         });
         // Build new file

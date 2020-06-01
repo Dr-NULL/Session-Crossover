@@ -64,6 +64,7 @@ export class Manager implements SessionManager {
       Main.encr(id),
       {
         path: '/',
+        secure: true,
         httpOnly: true,
         sameSite: 'strict',
         expires: new Date(Date.now() + expires),
