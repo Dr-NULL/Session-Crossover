@@ -1,7 +1,12 @@
 /// <reference types="qs" />
 /// <reference types="express" />
-export { SessionManager } from './lib/interfaces/session-manager';
-export { Session } from './lib/interfaces/session';
+import { SessionManager } from './lib/interfaces/session-manager';
+declare global {
+    namespace Express {
+        interface Request {
+            session: SessionManager;
+        }
+    }
+}
 export declare const deploy: (options: import("./lib/interfaces/options").Options) => (req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs>, res: import("express").Response<any>, nxt: import("express").NextFunction) => void;
-import './global';
 //# sourceMappingURL=index.d.ts.map

@@ -1,1 +1,0 @@
-{"version":3,"file":"file.d.ts","sourceRoot":"","sources":["../../../src/tool/fsys/file.ts"],"names":[],"mappings":";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,GAAG,CAAC;AAGzB,qBAAa,IAAK,SAAQ,IAAI;gBACT,QAAQ,EAAE,OAAO,EAAE,GAAG,YAAY,EAAE,MAAM,EAAE;IAI/D,IAAI;IAkBJ,QAAQ;IAUF,QAAQ;IASd,YAAY;IASZ,aAAa,CAAC,IAAI,EAAE,MAAM;CAW3B"}

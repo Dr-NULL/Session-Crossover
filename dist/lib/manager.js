@@ -76,7 +76,7 @@ class Manager {
         }
         // Matar cookie
         const name = main_1.Main.encr(main_1.Main.opt.cookieName);
-        this._res.clearCookie(name, { path: '/' });
+        this._res.clearCookie(name);
         // Matar archivo
         if (this._current.file.exists) {
             this._current.file.delete();
