@@ -23,7 +23,12 @@ class Manager {
         }
         else {
             // Kill Cookie
-            this._res.clearCookie(main_1.Main.encr(main_1.Main.opt.cookieName), { path: '/' });
+            this._res.cookie(main_1.Main.encr(main_1.Main.opt.cookieName), '', {
+                path: '/',
+                httpOnly: true,
+                sameSite: 'strict',
+                expires: new Date(0),
+            });
         }
     }
     get current() {
@@ -77,7 +82,12 @@ class Manager {
         }
         // Matar cookie
         const name = main_1.Main.encr(main_1.Main.opt.cookieName);
-        this._res.clearCookie(name);
+        this._res.cookie(name, '', {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'strict',
+            expires: new Date(0),
+        });
         // Matar archivo
         if (this._current.file.exists) {
             this._current.file.delete();

@@ -41,9 +41,15 @@ export class Manager implements SessionManager {
       }
     } else {
       // Kill Cookie
-      this._res.clearCookie(
+      this._res.cookie(
         Main.encr(Main.opt.cookieName),
-        { path: '/' }
+        '',
+        {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'strict',
+          expires: new Date(0),
+        }
       )
     }
   }
@@ -64,7 +70,6 @@ export class Manager implements SessionManager {
       Main.encr(id),
       {
         path: '/',
-        secure: true,
         httpOnly: true,
         sameSite: 'strict',
         expires: new Date(Date.now() + expires),
@@ -114,7 +119,16 @@ export class Manager implements SessionManager {
 
     // Matar cookie
     const name = Main.encr(Main.opt.cookieName)
-    this._res.clearCookie(name)
+    this._res.cookie(
+      name,
+      '',
+      {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        expires: new Date(0),
+      }
+    )
 
     // Matar archivo
     if (this._current.file.exists) {
