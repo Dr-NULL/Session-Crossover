@@ -4,6 +4,11 @@ import { File } from '../tool/file';
 import { Json } from "./interfaces/json";
 
 export class Current implements Session {
+  private _id : string;
+  public get id() : string {
+    return this._id;
+  }
+
   private _file: File;
   public get file(): File {
     return this._file;
@@ -19,7 +24,8 @@ export class Current implements Session {
     return this._expires
   }
 
-  public constructor(file: File) {
+  public constructor(id: string, file: File) {
+    this._id = id
     this._file = file
     const json = this.read()
 
@@ -27,10 +33,21 @@ export class Current implements Session {
     this._expires = new Date(json.expires)
   }
 
-  private read() {
-    const text = this._file.readTextSync()
-    const json: Json = JSON.parse(Main.decr(text))
-    return json
+  public read() {
+    if (this._file.exists) {
+      const text = this._file.readTextSync()
+      const json: Json = JSON.parse(Main.decr(text))
+      return json
+    } else {
+      return null
+    }
+  }
+
+  public write(obj: Json) {
+    const text = JSON.stringify(obj, null, '  ')
+    if (this._file.exists) {
+      this._file.writeTextSync(Main.encr(text))
+    }
   }
 
   public getData() {
@@ -41,8 +58,6 @@ export class Current implements Session {
   public setData(data: any) {
     const json = this.read()
     json.data = data
-
-    const text = JSON.stringify(json, null, '  ')
-    this._file.writeTextSync(Main.encr(text))
+    this.write(json)
   }
 }

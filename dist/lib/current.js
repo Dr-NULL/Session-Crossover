@@ -2,11 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const main_1 = require("./main");
 class Current {
-    constructor(file) {
+    constructor(id, file) {
+        this._id = id;
         this._file = file;
         const json = this.read();
         this._created = new Date(json.created);
         this._expires = new Date(json.expires);
+    }
+    get id() {
+        return this._id;
     }
     get file() {
         return this._file;
@@ -18,9 +22,20 @@ class Current {
         return this._expires;
     }
     read() {
-        const text = this._file.readTextSync();
-        const json = JSON.parse(main_1.Main.decr(text));
-        return json;
+        if (this._file.exists) {
+            const text = this._file.readTextSync();
+            const json = JSON.parse(main_1.Main.decr(text));
+            return json;
+        }
+        else {
+            return null;
+        }
+    }
+    write(obj) {
+        const text = JSON.stringify(obj, null, '  ');
+        if (this._file.exists) {
+            this._file.writeTextSync(main_1.Main.encr(text));
+        }
     }
     getData() {
         const json = this.read();
@@ -29,8 +44,7 @@ class Current {
     setData(data) {
         const json = this.read();
         json.data = data;
-        const text = JSON.stringify(json, null, '  ');
-        this._file.writeTextSync(main_1.Main.encr(text));
+        this.write(json);
     }
 }
 exports.Current = Current;

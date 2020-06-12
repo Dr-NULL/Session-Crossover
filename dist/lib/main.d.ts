@@ -11,7 +11,7 @@ export declare module Main {
      * Initialize the Session-Crossover module.
      * @param options Configuration object for the middleware.
      */
-    const deploy: (options: Options) => (req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs>, res: Response<any>, nxt: NextFunction) => void;
+    const deploy: <T>(options: Options) => (req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs>, res: Response<any>, nxt: NextFunction) => void;
     /**
      * Encrypt a string if the crypto object is instanciated.
      * @param input A string that would be encrypt.

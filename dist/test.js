@@ -13,15 +13,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const crossover = __importStar(require("."));
 const path_1 = require("path");
+let created;
 const app = express_1.default();
 app.use(crossover.deploy({
     path: path_1.resolve('data'),
     cookieName: 'gegege',
-    expires: 1,
+    expires: (1 / 60) * 10,
     aesType: 'aes-192-gcm',
     filenameLength: 64,
     callback: () => {
-        console.log('die!');
+        created = Date.now() - created;
+        created /= 1000;
+        console.log('killed...');
+        console.log(`${created} sec~\n`);
     }
 }));
 app.get('/', (req, res) => {
@@ -41,6 +45,8 @@ app.get('/', (req, res) => {
             number: Math.random() * 10000,
             text: 'Random Number'
         });
+        created = Date.now();
+        console.log('New!!!!');
         res.send('Session created successfully.');
     }
 });
@@ -71,6 +77,15 @@ app.get('/delete', (req, res) => {
     }
     else {
         res.send('No hay sesión para matar...');
+    }
+});
+app.get('/refresh', (req, res) => {
+    if (req.session.current) {
+        req.session.rewind();
+        res.send('Sesión rebobinada con éxito!');
+    }
+    else {
+        res.send('No hay sesión para rebobinar...');
     }
 });
 app.listen(80, () => {

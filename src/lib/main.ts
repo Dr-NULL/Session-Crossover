@@ -13,7 +13,7 @@ export module Main {
    * Initialize the Session-Crossover module.
    * @param options Configuration object for the middleware.
    */
-  export const deploy = (options: Options) => {
+  export const deploy = <T>(options: Options) => {
     // Default cookie name
     if (!options.cookieName) {
       options.cookieName = 'session'

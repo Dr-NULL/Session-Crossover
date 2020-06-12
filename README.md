@@ -41,6 +41,7 @@ When you make an endpoint, in the request instance, you have access to the `req.
 ```ts
 app.get('/', (req, res) => {
   req.session.create()    // create a new session
+  req.session.rewind()    // reset the countdown expiration time
   req.session.delete()    // delete the current session
   req.session.current     // it's the current session instance
 })

@@ -9,9 +9,11 @@ import { timestamp } from '../tool/timestamp';
 import { Current } from './current';
 import { Json } from './interfaces/json';
 
+export type tail = { [key: string]: NodeJS.Timer };
 export class Manager implements SessionManager {
   private _req: Request;
   private _res: Response;
+  private static _tail: tail = {};
 
   private _current: Current;
   public get current(): Current {
@@ -37,7 +39,7 @@ export class Manager implements SessionManager {
 
       // Add as current
       if (file.exists) {
-        this._current = new Current(file)
+        this._current = new Current(Main.decr(id), file)
       }
     } else {
       // Kill Cookie
@@ -93,10 +95,87 @@ export class Manager implements SessionManager {
     // Write data into the file
     const text = JSON.stringify(json, null, '  ')
     file.writeTextSync(Main.encr(text))
-    this._current = new Current(file)
+    this._current = new Current(id, file)
 
-    // delete the file created
-    setTimeout(() => {
+    // Delete the file created
+    Manager._tail[id] = this.makeTimeout(file, expires)
+  }
+
+  public delete() {
+    if (!this._current) {
+      return
+    }
+
+    // Kill Cookie
+    const name = Main.encr(Main.opt.cookieName)
+    this._res.cookie(
+      name,
+      '',
+      {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        expires: new Date(0),
+      }
+    )
+
+    // Kill timeout
+    const id = this._current.file.name.replace(/\.[^\.]+$/gi, '')
+    clearTimeout(Manager._tail[id])
+    delete Manager._tail[id]
+
+    // Fill file
+    if (this._current.file.exists) {
+      this._current.file.delete()
+    }
+
+    // kill session instance
+    this._current = undefined
+  }
+
+  rewind(min?: number) {
+    if (!this._current) {
+      return
+    }
+
+    if (!min) {
+      min = Main.opt.expires
+    }
+
+    // Rebuild cookie
+    const id = this._current.id
+    const expires = min * 60 * 1000
+    this._res.cookie(
+      Main.encr(Main.opt.cookieName),
+      Main.encr(id),
+      {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        expires: new Date(Date.now() + expires),
+      }
+    )
+
+    // Remake timeout
+    clearTimeout(Manager._tail[id])
+    Manager._tail[id] = this.makeTimeout(
+      this._current.file,
+      expires
+    )
+
+    // Rewrite file
+    const data = this._current.read()
+    data.expires = new Date(Date.now() + expires)
+    this._current.write(data)
+  }
+
+  /**
+   * Create a new timeout for add to te tail.
+   * @param file File instance.
+   * @param expires Time in milliseconds
+   */
+  private makeTimeout(file: File, expires: number) {
+    return setTimeout(() => {
       if (
         (Main.opt.callback) &&
         (file.exists)
@@ -110,32 +189,5 @@ export class Manager implements SessionManager {
         file.delete()
       }
     }, expires);
-  }
-
-  public delete() {
-    if (!this._current) {
-      return
-    }
-
-    // Matar cookie
-    const name = Main.encr(Main.opt.cookieName)
-    this._res.cookie(
-      name,
-      '',
-      {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'strict',
-        expires: new Date(0),
-      }
-    )
-
-    // Matar archivo
-    if (this._current.file.exists) {
-      this._current.file.delete()
-    }
-
-    // Matar instancia sesión
-    this._current = undefined
   }
 }
