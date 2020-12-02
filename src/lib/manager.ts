@@ -43,9 +43,8 @@ export class Manager implements SessionManager {
       }
     } else {
       // Kill Cookie
-      this._res.cookie(
+      this._res.clearCookie(
         Main.encr(Main.opt.cookieName),
-        '',
         {
           path: '/',
           httpOnly: true,
@@ -108,9 +107,8 @@ export class Manager implements SessionManager {
 
     // Kill Cookie
     const name = Main.encr(Main.opt.cookieName)
-    this._res.cookie(
+    this._res.clearCookie(
       name,
-      '',
       {
         path: '/',
         httpOnly: true,
