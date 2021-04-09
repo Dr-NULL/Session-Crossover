@@ -43,15 +43,7 @@ export class Manager implements SessionManager {
       }
     } else {
       // Kill Cookie
-      this._res.clearCookie(
-        Main.encr(Main.opt.cookieName),
-        {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'strict',
-          expires: new Date(0),
-        }
-      )
+      this._res.clearCookie(Main.encr(Main.opt.cookieName))
     }
   }
 
@@ -64,7 +56,7 @@ export class Manager implements SessionManager {
     }
 
     // Build new cookie
-    const expires = Main.opt.expires * 60 * 1000
+    const maxAge = Main.opt.expires * 60 * 1000
     const id = timestamp(Main.opt.filenameLength)
     this._res.cookie(
       Main.encr(Main.opt.cookieName),
@@ -73,7 +65,7 @@ export class Manager implements SessionManager {
         path: '/',
         httpOnly: true,
         sameSite: 'strict',
-        expires: new Date(Date.now() + expires),
+        maxAge,
       }
     )
 
@@ -87,7 +79,7 @@ export class Manager implements SessionManager {
     // Make file data
     const json: Json = {
       created: new Date(),
-      expires: new Date(Date.now() + expires),
+      expires: new Date(Date.now() + maxAge),
       data: null
     }
 
@@ -97,7 +89,7 @@ export class Manager implements SessionManager {
     this._current = new Current(id, file)
 
     // Delete the file created
-    Manager._tail[id] = this.makeTimeout(file, expires)
+    Manager._tail[id] = this.makeTimeout(file, maxAge)
   }
 
   public delete() {
@@ -107,15 +99,7 @@ export class Manager implements SessionManager {
 
     // Kill Cookie
     const name = Main.encr(Main.opt.cookieName)
-    this._res.clearCookie(
-      name,
-      {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'strict',
-        expires: new Date(0),
-      }
-    )
+    this._res.clearCookie(name)
 
     // Kill timeout
     const id = this._current.file.name.replace(/\.[^\.]+$/gi, '')
@@ -142,7 +126,7 @@ export class Manager implements SessionManager {
 
     // Rebuild cookie
     const id = this._current.id
-    const expires = min * 60 * 1000
+    const maxAge = min * 60 * 1000
     this._res.cookie(
       Main.encr(Main.opt.cookieName),
       Main.encr(id),
@@ -150,7 +134,7 @@ export class Manager implements SessionManager {
         path: '/',
         httpOnly: true,
         sameSite: 'strict',
-        expires: new Date(Date.now() + expires),
+        maxAge,
       }
     )
 
@@ -158,12 +142,12 @@ export class Manager implements SessionManager {
     clearTimeout(Manager._tail[id])
     Manager._tail[id] = this.makeTimeout(
       this._current.file,
-      expires
+      maxAge
     )
 
     // Rewrite file
     const data = this._current.read()
-    data.expires = new Date(Date.now() + expires)
+    data.expires = new Date(Date.now() + maxAge)
     this._current.write(data)
   }
 
