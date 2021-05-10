@@ -1,7 +1,7 @@
 import { File } from './file';
 import { Folder } from './folder';
 
-export interface FolderContent {
+export interface FolderChildren {
     folders: Folder[];
     files: File[];
 }

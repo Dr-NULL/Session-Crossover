@@ -1,65 +1,79 @@
-import * as fsModule from 'fs'; 
-import * as pathModule from 'path';
+import { resolve, join } from 'path';
+import * as Wrapper from './fs-wrappers';
 
+import { FSys } from './fsys';
 import { File } from './file';
-import { FolderContent } from './folder-content';
+import { FolderChildren } from './folder-children';
 
-export class Folder {
-    static fromFile(file: File): Folder {
-        return new Folder(file.path, '..');
-    }
-
-    private _path: string;
-    /**
-     * Gets the path of the current folder.
-     */
-    public get path(): string {
-        return this._path;
-    }
-
-    /**
-     * 
-     * @param pathParts Parts of the folder path, these will be resolved relative to cwd.
-     */
+export class Folder extends FSys {
     constructor(...pathParts: string[]) {
-        this._path = pathModule.resolve(...pathParts);
+        super(...pathParts);
     }
 
-    /**
-     * Checks the current folder asynchronously, if doesn't exists,
-     * the folder will be created recursively.
-     */
-    make(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            fsModule.stat(this._path, err1 => {
-                if (err1) {
-                    // Create the folder
-                    fsModule.mkdir(this._path, { recursive: true }, err2 => {
-                        if (err2) {
-                            reject(err2);
-                        } else {
-                            resolve();
-                        }
-                    });
-                } else {
-                    // Folder already exists
-                    resolve();
-                }
-            });
-        });
+    async make(): Promise<void> {
+        // Test folder existence
+        let fail = false;
+        try {
+            await this.stats();
+        } catch (err) {
+            fail = true;
+        }
+
+        // Make directory
+        if (fail) {
+            await Wrapper.mkdir(this._path, { recursive: true });
+        }
     }
 
-    content(): Promise<string[]> {
-        return new Promise((resolve, reject) => {
-            fsModule.readdir(this._path, async (err, paths) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    for (let path of paths) {
-                        path = pathModule.join (this._path, path);
-                    }
-                }
-            });
-        });
+    async children(): Promise<FolderChildren> {
+        const names = await Wrapper.readDir(this._path);
+        const resp: FolderChildren = {
+            folders: [],
+            files: []
+        };
+
+        for (const name of names) {
+            const path = join(this._path, name);
+            const stat = await Wrapper.stats(path);
+
+            if (stat.isDirectory()) {
+                const obj = new Folder(path);
+                resp.folders.push(obj);
+            } else if (stat.isFile()) {
+                const obj = new File(path);
+                resp.files.push(obj);
+            }
+        }
+
+        return resp;
+    }
+    
+    async delete(): Promise<void> {
+        await Wrapper.rm(this._path, { recursive: true });
+    }
+
+    async copy(...pathParts: string[]): Promise<Folder> {
+        const resp = new Folder(...pathParts);
+        const inside = await this.children();
+
+        // Copy files inside
+        await resp.make();
+        for (const file of inside.files) {
+            await file.copy(...pathParts, file.name);
+        }
+
+        // Recursive iteration
+        for (const folder of inside.folders) {
+            await folder.copy(...pathParts, folder.name);
+        }
+
+        return resp;
+    }
+
+    async move(...pathParts: string[]): Promise<void> {
+        const dest = resolve(...pathParts);
+        await this.copy(dest);
+        await this.delete();
+        this._path = dest;
     }
 }
