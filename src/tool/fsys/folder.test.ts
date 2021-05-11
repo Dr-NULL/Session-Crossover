@@ -4,7 +4,7 @@ import * as Wrapper from './fs-wrappers';
 
 import { Folder } from './folder';
 
-describe('Testing "./lib/tool/fsys/folder"', () => {
+describe('Testing "./tool/fsys/folder"', () => {
     after(async () => {
         await Wrapper.rm('./data-test-other', { recursive: true });
     });

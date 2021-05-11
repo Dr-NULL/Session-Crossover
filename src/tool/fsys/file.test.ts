@@ -4,7 +4,7 @@ import * as Wrapper from './fs-wrappers';
 
 import { File } from './file';
 
-describe('Testing "./lib/tool/fsys/file"', () => {
+describe('Testing "./tool/fsys/file"', () => {
     before(async ()=> {
         const path = resolve('./data-test');
         await Wrapper.mkdir(path);

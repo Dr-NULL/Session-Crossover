@@ -24,7 +24,7 @@ async function asyncThrows(fn: () => any, message?: string) {
     }
 }
 
-describe('Testing "./lib/hasher"', () => {
+describe('Testing "./tool/hasher"', () => {
     const text = 'Hola jajajajaja';
 
     for (let i = 8; i <= 32; i++) {

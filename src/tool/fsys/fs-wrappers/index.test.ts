@@ -2,7 +2,7 @@ import * as Wrapper from '.';
 import { resolve } from 'path';
 import { assert } from 'chai';
 
-describe('Testing "./lib/tool/fsys/fs-wrappers"', () => {
+describe('Testing "./tool/fsys/fs-wrappers"', () => {
     it('Create a new folder (recursive)', async () => {
         const path = resolve('./test-fsys/inside');
         await Wrapper.mkdir(path, { recursive: true });
