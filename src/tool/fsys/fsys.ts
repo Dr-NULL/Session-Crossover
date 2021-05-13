@@ -44,7 +44,19 @@ export abstract class FSys {
     }
 
     /**
-     * Checks if the current element exists or not.
+     * Gets the stats of the current element synchronously. If the element doesn't
+     * exists, throws an error.
+     * @returns The Stats of the current element.
+     */
+    statsSync(): fsModule.Stats
+    statsSync(bigInt: false): fsModule.Stats
+    statsSync(bigInt: true): fsModule.BigIntStats
+    statsSync(bigInt?: boolean): fsModule.Stats | fsModule.BigIntStats {
+        return fsModule.statSync(this._path, { bigint: bigInt });
+    }
+
+    /**
+     * Checks asynchronously if the current element exists or not.
      * @returns A boolean indicating if the element exists or not.
      */
     async exists(): Promise<boolean> {
@@ -60,8 +72,25 @@ export abstract class FSys {
         }
     }
 
+    /**
+     * Checks synchronously if the current element exists or not.
+     * @returns A boolean indicating if the element exists or not.
+     */
+    existsSync(): boolean {
+        try {
+            this.statsSync();
+            return true;
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                return false;
+            } else {
+                throw err;
+            }
+        }
+    }
+
     abstract delete(): Promise<void>;
-    abstract copy(...pathParts: string[]): Promise<FSys>; 
+    abstract copy(...pathParts: string[]): Promise<FSys>;
     abstract move(...pathParts: string[]): Promise<void>;
 
     async rename(name: string): Promise<void> {

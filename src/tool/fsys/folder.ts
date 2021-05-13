@@ -1,5 +1,6 @@
-import { resolve, join } from 'path';
+import * as fs from 'fs';
 import * as Wrapper from './fs-wrappers';
+import { resolve, join } from 'path';
 
 import { FSys } from './fsys';
 import { File } from './file';
@@ -10,6 +11,10 @@ export class Folder extends FSys {
         super(...pathParts);
     }
 
+    /**
+     * Creates the folder asynchronously if the path doesn't exists.
+     * @returns An empty promise with the pending operation.
+     */
     async make(): Promise<void> {
         // Test folder existence
         let fail = false;
@@ -22,6 +27,24 @@ export class Folder extends FSys {
         // Make directory
         if (fail) {
             await Wrapper.mkdir(this._path, { recursive: true });
+        }
+    }
+
+    /**
+     * Creates the folder synchronously if the path doesn't exists.
+     */
+    makeSync(): void {
+        // Test folder existence
+        let fail = false;
+        try {
+            this.statsSync();
+        } catch (err) {
+            fail = true;
+        }
+
+        // Make directory
+        if (fail) {
+            fs.mkdirSync(this._path, { recursive: true });
         }
     }
 
@@ -47,9 +70,36 @@ export class Folder extends FSys {
 
         return resp;
     }
+
+    childrenSync(): FolderChildren {
+        const names = fs.readdirSync(this._path);
+        const resp: FolderChildren = {
+            folders: [],
+            files: []
+        };
+
+        for (const name of names) {
+            const path = join(this._path, name);
+            const stat = fs.statSync(path);
+
+            if (stat.isDirectory()) {
+                const obj = new Folder(path);
+                resp.folders.push(obj);
+            } else if (stat.isFile()) {
+                const obj = new File(path);
+                resp.files.push(obj);
+            }
+        }
+
+        return resp;
+    }
     
     async delete(): Promise<void> {
         await Wrapper.rm(this._path, { recursive: true });
+    }
+
+    deleteSync(): void {
+        return fs.rmSync(this._path, { recursive: true });
     }
 
     async copy(...pathParts: string[]): Promise<Folder> {

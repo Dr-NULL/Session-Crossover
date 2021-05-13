@@ -30,6 +30,18 @@ export class Hasher {
     }
 
     /**
+     * Gets or sets the salt to be user to generate hashes. If you set a custom salt, the `saltLength`
+     * will be adjusted using the length of the salt given too.
+     */
+    public get salt(): Buffer {
+        return this._options.salt;
+    }
+    public set salt(v: Buffer) {
+        this._options.salt = v;
+        this._options.saltLength = v.length;
+    }
+
+    /**
      * `default = 16;` Gets or sets the length (in bytes) of the salt generated.
      * The range of values accepted are between `1` to `255`.
      */

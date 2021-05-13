@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { JsonParser } from './json-parser';
 
-describe.only('Testing "./tool/json-parser"', () => {
+describe('Testing "./tool/json-parser"', () => {
     describe('Testing "this.toString(obj);"', () => {
         it('Test 01', () => {
             const parser = new JsonParser();
