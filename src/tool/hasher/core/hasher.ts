@@ -99,6 +99,16 @@ export class Hasher {
     }
 
     /**
+     * Generates a new salt randomly.
+     * @param length The salt length desired.
+     */
+    createRndSalt(length: number): void {
+        length = Math.trunc(length);
+        this._options.salt = Buffer.from(randomBytes(length));
+        this._options.saltLength = length;
+    }
+
+    /**
      * Converts the input value into a Buffer. 
      * @param input the input that will used to be converted into a Buffer.
      */

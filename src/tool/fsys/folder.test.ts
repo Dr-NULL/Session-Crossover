@@ -4,7 +4,7 @@ import * as Wrapper from './fs-wrappers';
 
 import { Folder } from './folder';
 
-describe.only('Testing "./tool/fsys/folder"', () => {
+describe('Testing "./tool/fsys/folder"', () => {
     describe('Testing async/await', () => {
         it('Create a new Folder', async () => {
             const folder = new Folder('./data-test');

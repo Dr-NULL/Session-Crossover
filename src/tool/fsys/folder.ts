@@ -120,10 +120,35 @@ export class Folder extends FSys {
         return resp;
     }
 
+    copySync(...pathParts: string[]): Folder {
+        const resp = new Folder(...pathParts);
+        const inside = this.childrenSync();
+
+        // Copy files inside
+        resp.makeSync();
+        for (const file of inside.files) {
+            file.copySync(...pathParts, file.name);
+        }
+
+        // Recursive iteration
+        for (const folder of inside.folders) {
+            folder.copySync(...pathParts, folder.name);
+        }
+
+        return resp;
+    }
+
     async move(...pathParts: string[]): Promise<void> {
         const dest = resolve(...pathParts);
         await this.copy(dest);
         await this.delete();
+        this._path = dest;
+    }
+
+    moveSync(...pathParts: string[]): void {
+        const dest = resolve(...pathParts);
+        this.copySync(dest);
+        this.deleteSync();
         this._path = dest;
     }
 }

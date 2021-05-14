@@ -90,8 +90,13 @@ export abstract class FSys {
     }
 
     abstract delete(): Promise<void>;
+    abstract deleteSync(): void;
+
     abstract copy(...pathParts: string[]): Promise<FSys>;
+    abstract copySync(...pathParts: string[]): FSys;
+
     abstract move(...pathParts: string[]): Promise<void>;
+    abstract moveSync(...pathParts: string[]): void;
 
     async rename(name: string): Promise<void> {
         return this.move(this.path, '..', name);

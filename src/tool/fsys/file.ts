@@ -1,5 +1,7 @@
 import { FSys } from './fsys';
 import { resolve } from 'path';
+
+import * as fs from 'fs';
 import * as Wrapper from './fs-wrappers';
 
 export class File extends FSys {
@@ -11,9 +13,19 @@ export class File extends FSys {
         await Wrapper.unlink(this._path);
     }
 
+    deleteSync(): void {
+        return fs.unlinkSync(this._path);
+    }
+
     async copy(...pathParts: string[]): Promise<File> {
         const file = new File(...pathParts);
         await Wrapper.copyFile(this._path, file.path);
+        return file;
+    }
+
+    copySync(...pathParts: string[]): File {
+        const file = new File(...pathParts);
+        fs.copyFileSync(this._path, file.path);
         return file;
     }
 
@@ -21,6 +33,13 @@ export class File extends FSys {
         const dest = resolve(...pathParts);
         await Wrapper.copyFile(this._path, dest);
         await Wrapper.unlink(this._path);
+        this._path = dest;
+    }
+
+    moveSync(...pathParts: string[]): void {
+        const dest = resolve(...pathParts);
+        fs.copyFileSync(this._path, dest);
+        fs.unlinkSync(this._path);
         this._path = dest;
     }
 

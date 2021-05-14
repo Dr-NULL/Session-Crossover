@@ -1,5 +1,5 @@
 {
-  "name": "session-crossover",
+  "name": "json-session",
   "version": "1.0.0",
   "description": "A NodeJS package that stores the current session into encrypted JSON for ExpressJS.",
   "main": "dist/index.js",

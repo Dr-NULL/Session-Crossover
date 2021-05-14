@@ -1,11 +1,12 @@
 import express, { json } from 'express';
-import { deploy } from './lib/deploy';
+import { jsonSession } from './lib';
 
 const app = express();
-app.use(deploy({
-    folder: './data'
-}));
 app.use(json());
+app.use(jsonSession({
+    folder: './data',
+    expire: 2
+}));
 
 app.get('', (_, res) => {
     console.log('Entering to the endpoint...\n');
@@ -19,6 +20,4 @@ app.get('', (_, res) => {
 app.listen(80, '127.0.0.1', () => {
     console.clear();
     console.log('listening...');
-
-    setTimeout(() => process.emit('SIGINT', 'SIGINT'), 2500);
 });
