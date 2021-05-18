@@ -12,7 +12,7 @@ export class SessionNotFound extends Error implements ModuleError {
         if (!hash) {
             this.message = 'The current session wasn\'t found';
         } else {
-            this.message = `The current session "${hash}" wasn\'t found`;
+            this.message = `The current session with hash "${hash}" wasn\'t found`;
         }
     }
 }
