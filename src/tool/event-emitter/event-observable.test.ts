@@ -16,7 +16,7 @@ class Fake<T> extends EventObservable<T> {
     }
 }
 
-describe.only('Testing "./tool/event-emitter/event-observable"', () => {
+describe('Testing "./tool/event-emitter/event-observable"', () => {
     describe('Sync events', () => {
         it('Create 3 events, and destroy every subscription individually', done => {
             const obs = new Fake<void>();

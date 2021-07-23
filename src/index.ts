@@ -1,10 +1,10 @@
-import { Session } from './lib/interface';
-export * from './lib';
+import { Manager } from './lib';
+export { sessionCrossover, Manager } from './lib';
 
 declare global {
   namespace Express {
     export interface Request {
-      session: Session;
+      session: Manager;
     }
   }
 }

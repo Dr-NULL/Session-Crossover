@@ -1,5 +1,5 @@
 import { DispatchedEventFailed, DisposeFuncNotSetted } from './errors';
-import { Callback, Subscription } from './interface';
+import { Callback, Subscription } from './interfaces';
 
 export class EventSubscription<T> implements Subscription {
     private _func: Callback<T>;

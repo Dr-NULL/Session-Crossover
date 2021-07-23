@@ -43,11 +43,11 @@ export class File extends FSys {
         this._path = dest;
     }
 
-    async read(): Promise<Buffer> {
+    protected async read(): Promise<Buffer> {
         return Wrapper.readFile(this._path);
     }
 
-    async write(byte: Buffer): Promise<void> {
+    protected async write(byte: Buffer): Promise<void> {
         return Wrapper.writeFile(this._path, byte);
     }
 }

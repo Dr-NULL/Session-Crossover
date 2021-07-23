@@ -1,5 +1,5 @@
 import { EventObservable } from './event-observable';
-import { Observable } from './interface';
+import { Observable } from './interfaces';
 
 export class EventEmitter<T = any> {
     private _observable: EventObservable<T>;

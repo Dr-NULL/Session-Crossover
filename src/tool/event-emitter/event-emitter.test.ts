@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { EventEmitter } from './event-emitter';
 
-describe.only('Testing "./tool/event-emitter"', () => {
+describe('Testing "./tool/event-emitter"', () => {
     it('Create a simple event', done => {
         const event = new EventEmitter<string>();
         const subsc = event.observable().subscribe(v => {

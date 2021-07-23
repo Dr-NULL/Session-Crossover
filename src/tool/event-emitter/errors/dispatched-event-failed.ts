@@ -1,4 +1,4 @@
-import { InternalError } from '../interface';
+import { InternalError } from '../interfaces';
 
 export class DispatchedEventFailed extends Error implements InternalError {
     public get code(): string {

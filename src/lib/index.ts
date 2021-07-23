@@ -1,2 +1,2 @@
-export * from './interface';
-export { jsonSession } from './json-session';
+export { sessionCrossover } from './session-crossover';
+export * from './interfaces';

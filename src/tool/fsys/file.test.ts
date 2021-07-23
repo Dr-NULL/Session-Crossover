@@ -1,8 +1,17 @@
-import { assert } from 'chai';
-import { resolve } from 'path';
 import * as Wrapper from './fs-wrappers';
-
+import { resolve } from 'path';
+import { assert } from 'chai';
 import { File } from './file';
+
+class Fake extends File {
+    override async read(): Promise<Buffer> {
+        return super.read();
+    }
+
+    override async write(data: Buffer): Promise<void> {
+        return super.write(data);
+    }
+}
 
 describe('Testing "./tool/fsys/file"', () => {
     before(async ()=> {
@@ -16,13 +25,13 @@ describe('Testing "./tool/fsys/file"', () => {
     });
 
     it('Create a new file with "hello world"', async () => {
-        const file = new File('./data-test/test.txt');
+        const file = new Fake('./data-test/test.txt');
         const byte = Buffer.from('hello world', 'utf-8');
         await file.write(byte);
     });
 
     it('Read the file content', async () => {
-        const file = new File('./data-test/test.txt');
+        const file = new Fake('./data-test/test.txt');
         const byte = await file.read();
         const text = byte.toString('utf-8');
 
@@ -30,14 +39,14 @@ describe('Testing "./tool/fsys/file"', () => {
     });
 
     it('Rename this file to "test-copy.txt"', async () => {
-        const file = new File('./data-test/test.txt');
+        const file = new Fake('./data-test/test.txt');
         await file.rename('test-copy.txt');
 
         assert.strictEqual(file.name, 'test-copy.txt');
     });
 
     it('Clone 5 times the file', async () => {
-        const file = new File('./data-test/test-copy.txt');
+        const file = new Fake('./data-test/test-copy.txt');
         for (let i = 1; i <= 5; i++) {
             const other = await file.copy(`./data-test/test${i}.txt`);
             assert.strictEqual(other.name, `test${i}.txt`);
@@ -45,7 +54,7 @@ describe('Testing "./tool/fsys/file"', () => {
     });
 
     it('Delete "test-copy.txt"', async () => {
-        const file = new File('./data-test/test-copy.txt');
+        const file = new Fake('./data-test/test-copy.txt');
         await file.delete();
     });
 });

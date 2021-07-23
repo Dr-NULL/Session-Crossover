@@ -1,5 +1,5 @@
 import { EventSubscription } from './event-subscription';
-import { Callback, Observable, Subscription } from './interface';
+import { Callback, Observable, Subscription } from './interfaces';
 
 export class EventObservable<T> implements Observable<T> {
     protected _tail: number[] = [];
