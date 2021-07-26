@@ -51,13 +51,13 @@ describe('Testing "./tool/cookie-manager/cookie-element"', () => {
     ]);
 
     it('Get "cookie-a" value: "hola mundo"', () => {
-        const obj = new CookieElement(req, res, 'cookie-a');
+        const obj = new CookieElement<string>(req, res, 'cookie-a');
         assert.strictEqual(obj.name, 'cookie-a');
         assert.strictEqual(obj.value, 'hola mundo');
     });
 
     it('Get "cookie-b" value: { text: "joder", value: 555 }', () => {
-        const obj = new CookieElement(req, res, 'cookie-b');
+        const obj = new CookieElement<{ text: string, value: number; }>(req, res, 'cookie-b');
         assert.strictEqual(obj.name, 'cookie-b');
         assert.hasAllKeys(obj.value ?? { }, [ 'text', 'value' ]);
         assert.strictEqual(obj.value?.text, 'joder');

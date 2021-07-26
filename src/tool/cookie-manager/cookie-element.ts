@@ -1,8 +1,8 @@
 import { Cookie, RequestWithCookies, ResponseForCookies } from './interfaces';
-import { parse } from 'cookie';
 import { CookieOptions } from 'express';
+import { parse } from 'cookie';
 
-export class CookieElement implements Cookie {
+export class CookieElement<T = any> implements Cookie<T> {
     private _req: RequestWithCookies;
     private _res: ResponseForCookies;
 
@@ -12,8 +12,8 @@ export class CookieElement implements Cookie {
     }
 
     private _found = false;
-    private _value: any;
-    public get value(): any {
+    private _value: T;
+    public get value(): T {
         if (!this._found) {
             // Parse values
             const obj = parse(this._req.headers.cookie);
@@ -28,14 +28,14 @@ export class CookieElement implements Cookie {
                     this._value = undefined;
                 }
             } else {
-                this._value = obj[this._name];
+                this._value = obj[this._name] as any;
             }
         }
 
         // Return the parsed value
         return this._value;
     }
-    public set value(v: any) {
+    public set value(v: T) {
         // Parse the raw cookie string
         this._found = true;
         const obj = parse(this._req.headers.cookie);
@@ -71,7 +71,14 @@ export class CookieElement implements Cookie {
     }
 
     save(options?: CookieOptions): void {
-        this._res = this._res.cookie(this._name, this._value, options);
+        let value: string;
+        if (typeof this._value === 'string') {
+            value = this._value;
+        } else {
+            value = 'j:' + JSON.stringify(this._value);
+        }
+
+        this._res = this._res.cookie(this._name, value, options);
     }
 
     kill(options?: CookieOptions): void {

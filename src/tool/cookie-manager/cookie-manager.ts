@@ -40,7 +40,7 @@ export class CookieManager {
         }
     }
 
-    get(name: string): Cookie | null {
+    get<T = any>(name: string): Cookie<T> | null {
         const raw = this._req.headers.cookie;
         const names = raw
         	.replace(/(^|;)[^=;]+(;\s+|$)/gi, '')
@@ -50,14 +50,14 @@ export class CookieManager {
             
         const found = names?.find(x => x === name);
         if (found) {
-            return new CookieElement(this._req, this._res, name);
+            return new CookieElement<T>(this._req, this._res, name);
         } else {
             return null;
         }
     }
 
-    new(name: string, value: any, options?: CookieOptions): Cookie {
-        const elem = new CookieElement(this._req, this._res, name);
+    new<T = any>(name: string, value: any, options?: CookieOptions): Cookie<T> {
+        const elem = new CookieElement<T>(this._req, this._res, name);
         elem.value = value;
         return elem;
     }

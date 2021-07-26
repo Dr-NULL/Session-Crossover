@@ -99,6 +99,10 @@ export abstract class FSys {
     abstract moveSync(...pathParts: string[]): void;
 
     async rename(name: string): Promise<void> {
-        return this.move(this.path, '..', name);
+        if (await this.exists()) {
+            return this.move(this.path, '..', name);
+        } else {
+            this._path = this._path.replace(/[^\\\/]+$/gi, name);
+        }
     }
 }

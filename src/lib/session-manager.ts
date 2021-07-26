@@ -1,33 +1,58 @@
-import { CookieManager, RequestWithCookies, ResponseForCookies } from '../tool/cookie-manager';
-import { Manager, Options } from './interfaces';
-import { Hasher } from '../tool/hasher';
+import { Current, Manager, Options } from './interfaces';
+import { CurrentSession } from './current-session';
+import { CookieManager } from '../tool/cookie-manager';
+import { Queue } from './queue';
+import { SessionNotFoundError } from './errors';
 
-export class SessionManager implements Manager {
+export class SessionManager<T = any> implements Manager<T> {
     private _cookieManager: CookieManager;
-    private _hasher: Hasher;
-    private _req: RequestWithCookies;
-    private _res: ResponseForCookies;
-    private _opt: Options;
+    private _options: Options;
+    private _queue: Queue;
 
-    constructor(req: RequestWithCookies, res: ResponseForCookies, opt: Options) {
-        this._cookieManager = new CookieManager(req, res);
-        this._req = req;
-        this._res = res;
-        this._opt = opt;
-
-        this._hasher = new Hasher();
-        this._hasher.hashLength = 32;
+    private _current: CurrentSession<T>;
+    public get current(): Current<T> {
+        return this._current;
     }
 
-    current(): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
+    constructor(cookieManager: CookieManager, options: Options, queue: Queue) {
+        this._cookieManager = cookieManager;
+        this._options = options;
+        this._queue = queue;
 
-    rewind(): Promise<void> {
-        throw new Error('Method not implemented.');
+        // Get session id
+        const cookie = this
+            ._cookieManager
+            .get(this._options.name);
+
+        // Get current session
+        if (cookie) {
+            this._current = this._queue.find(cookie.value);
+            if (!this._current) {
+                throw new SessionNotFoundError(cookie.value);
+            }
+        }
     }
 
     async create(): Promise<void> {
+        // Get session id
+        let cookie = this
+            ._cookieManager
+            .get(this._options.name);
+
+        // Destroy the current cookie
+        if (cookie) {
+            cookie.kill({ path: '/' });
+        }
+
+        // Destroy the current session
+        if (this._current) {
+            this._current.destroy();
+        }
+
+        // Create new Session
+    }
+
+    async delete(): Promise<void> {
         throw new Error('Method not implemented.');
     }
 }
