@@ -1,5 +1,5 @@
 export interface Current<T = any> {
-    value: T;
-    save(): Promise<void>;
+    load(): Promise<T>;
+    save(value: T): Promise<void>;
     rewind(): void;
 }

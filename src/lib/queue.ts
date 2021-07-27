@@ -39,8 +39,9 @@ export class Queue<T = any> {
             this._options.path
         );
 
-        // Bind event
+        // Configure
         current.onExpires = this._destroy.bind(this);
+        this._memory[hash] = current;
         return current;
     }
 

@@ -7,7 +7,7 @@ interface Data {
     value: number;
 }
 
-describe.only('Testing "./current-session"', () => {
+describe('Testing "./lib/current-session"', () => {
     const folder = new Folder('./test');
     before(async () => {
         await folder.make();
@@ -20,15 +20,14 @@ describe.only('Testing "./current-session"', () => {
     it('Create a new session: "aaaaa"', () => {
         return new Promise<void>(async resolve => {
             // Create the session value
-            const curr = new CurrentSession<Data>('aaaaa', 2000, folder.path);
+            const curr = new CurrentSession('aaaaa', 2000, folder.path);
             const file = new File(`${folder.path}/${curr.hash}.json`);
 
             // Save current value
-            curr.value = {
+            await curr.save({
                 text: 'jajaja dale men relax',
                 value: 666
-            };
-            await curr.save();
+            });
             assert.isTrue(await file.exists());
     
             // Await for file destruction
@@ -42,16 +41,15 @@ describe.only('Testing "./current-session"', () => {
     it('Create a new session: "bbbbb" and rewind at 500 ms', () => {
         return new Promise<void>(async resolve => {
             // Create the session value
-            const curr = new CurrentSession<Data>('bbbbb', 1500, folder.path);
+            const curr = new CurrentSession('bbbbb', 1500, folder.path);
             const file = new File(`${folder.path}/${curr.hash}.json`);
             const time = Date.now();
 
             // Save current value
-            curr.value = {
+            await curr.save({
                 text: 'jajaja dale men relax',
                 value: 666
-            };
-            await curr.save();
+            });
             assert.isTrue(await file.exists());
 
             // Rewind the session
@@ -74,11 +72,10 @@ describe.only('Testing "./current-session"', () => {
             const file = new File(`${folder.path}/${curr.hash}.json`);
 
             // Save current value
-            curr.value = {
+            await curr.save({
                 text: 'jajaja dale men relax',
                 value: 666
-            };
-            await curr.save();
+            });
             assert.isTrue(await file.exists());
 
             // Destroy the session
