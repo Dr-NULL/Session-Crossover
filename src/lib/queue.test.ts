@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 
 import { Folder } from '../tool/fsys';
+import { CurrentSession } from './current-session';
 import { Queue } from './queue';
 
 interface Data {
@@ -24,20 +25,20 @@ function delay(ms: number): Promise<void> {
     return new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 
-describe('Testing "./lib/queue"', () => {
+describe.only('Testing "./lib/queue"', () => {
     const folder = new FolderTest('./test');
-    beforeEach(async () => {
+    before(async () => {
         await folder.make();
     });
 
-    afterEach(async () => {
+    after(async () => {
         await folder.delete();
     });
 
-    it('New Queue: 1 session; 1990ms', async () => {
+    it('New Queue: 1 session; 2000ms for each', async () => {
         const queue = new Queue<Data>({
             path: './test',
-            expires: 1990
+            expires: 2000
         });
 
         const elem = await queue.new();
@@ -50,33 +51,39 @@ describe('Testing "./lib/queue"', () => {
         assert.isTrue(queue.some(elem.hash));
         assert.isTrue(await folder.someFile(elem.hash));
 
-        await delay(1550);
+        await delay(1525);
         assert.isFalse(queue.some(elem.hash));
         assert.isFalse(await folder.someFile(elem.hash));
     }).timeout(2100);
 
-    it('New Queue: 2 session; 1500ms', async () => {
+    it('New Queue: 2 session; 1500ms for each', async () => {
         const queue = new Queue<Data>({
             path: './test',
             expires: 1500
         });
 
-        const objA = await queue.new();
-        objA.save({
-            id: 666,
-            nick: 'wold'
-        });
+        let objA: CurrentSession<Data>;
+        setTimeout(async () => {
+            objA = await queue.new();
+            await objA.save({
+                id: 666,
+                nick: 'the angelic process'
+            });
+        }, 0);
+
+        let objB: CurrentSession<Data>;
+        setTimeout(async () => {
+            objB = await queue.new();
+            await objB.save({
+                id: 999,
+                nick: 'el lago de las orquídeas en llamas'
+            });
+        }, 500);
 
         await delay(500);
         assert.isTrue(queue.some(objA.hash));
         assert.isTrue(await folder.someFile(objA.hash));
         assert.strictEqual(await folder.cantFiles(), 1);
-
-        const objB = await queue.new();
-        objB.save({
-            id: 999,
-            nick: 'the angelic process'
-        });
 
         await delay(500);
         assert.isTrue(queue.some(objA.hash));
@@ -85,11 +92,55 @@ describe('Testing "./lib/queue"', () => {
         assert.isTrue(await folder.someFile(objB.hash));
         assert.strictEqual(await folder.cantFiles(), 2);
 
-        await delay(1050);
+        await delay(1025);
         assert.isFalse(queue.some(objA.hash));
         assert.isFalse(queue.some(objB.hash));
         assert.isFalse(await folder.someFile(objA.hash));
         assert.isFalse(await folder.someFile(objB.hash));
+        assert.strictEqual(await folder.cantFiles(), 0);
+    }).timeout(2100);
+
+    it('New Queue: 3 session; 1000ms for each', async () => {
+        let id = 83;
+        const queue = new Queue<Data>({
+            path: './test',
+            expires: 1000
+        });
+
+        let objA: CurrentSession<Data>;
+        setTimeout(async () => {
+            objA = await queue.new();
+            await objA.save({
+                id: ++id,
+                nick: 'pendejo-1'
+            });
+        }, 0);
+
+        let objB: CurrentSession<Data>;
+        setTimeout(async () => {
+            objB = await queue.new();
+            await objB.save({
+                id: ++id,
+                nick: 'pendejo-2'
+            });
+        }, 500);
+
+        let objC: CurrentSession<Data>;
+        setTimeout(async () => {
+            objC = await queue.new();
+            await objC.save({
+                id: ++id,
+                nick: 'pendejo-3'
+            });
+        }, 1000);
+        
+        await delay(2025);
+        assert.isFalse(queue.some(objA.hash));
+        assert.isFalse(queue.some(objB.hash));
+        assert.isFalse(queue.some(objC.hash));
+        assert.isFalse(await folder.someFile(objA.hash));
+        assert.isFalse(await folder.someFile(objB.hash));
+        assert.isFalse(await folder.someFile(objC.hash));
         assert.strictEqual(await folder.cantFiles(), 0);
     }).timeout(2100);
 });
