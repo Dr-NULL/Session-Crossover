@@ -20,6 +20,10 @@ export class CookieManager {
     getAll(): Cookie[] {
         // Get raw cookies
         const raw = this._req.headers.cookie;
+        if (!raw) {
+            return null;
+        }
+
         const names = raw
             .replace(/(^|;)[^=;]+(;\s+|$)/gi, '')
             .replace(/;\s+/gi, '\n')
@@ -42,6 +46,10 @@ export class CookieManager {
 
     get<T = any>(name: string): Cookie<T> | null {
         const raw = this._req.headers.cookie;
+        if (!raw) {
+            return null;
+        }
+
         const names = raw
         	.replace(/(^|;)[^=;]+(;\s+|$)/gi, '')
             .replace(/;\s+/gi, '\n')

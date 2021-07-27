@@ -31,7 +31,7 @@ describe('Testing "./lib/current-session"', () => {
             assert.isTrue(await file.exists());
     
             // Await for file destruction
-            curr.onExpires = async () => {
+            curr.onDestroy = async () => {
                 assert.isFalse(await file.exists());
                 resolve();
             }
@@ -56,7 +56,7 @@ describe('Testing "./lib/current-session"', () => {
             setTimeout(() => curr.rewind(), 500);
     
             // Await for file destruction
-            curr.onExpires = async () => {
+            curr.onDestroy = async () => {
                 assert.isFalse(await file.exists());
                 const duration = Date.now() - time;
                 assert.isTrue((duration > 1990) && (duration < 2050));

@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 
-import { Folder } from '../tool/fsys';
 import { CurrentSession } from './current-session';
+import { Folder } from '../tool/fsys';
 import { Queue } from './queue';
 
 interface Data {
@@ -25,7 +25,7 @@ function delay(ms: number): Promise<void> {
     return new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 
-describe.only('Testing "./lib/queue"', () => {
+describe('Testing "./lib/queue"', () => {
     const folder = new FolderTest('./test');
     before(async () => {
         await folder.make();
@@ -54,7 +54,7 @@ describe.only('Testing "./lib/queue"', () => {
         await delay(1525);
         assert.isFalse(queue.some(elem.hash));
         assert.isFalse(await folder.someFile(elem.hash));
-    }).timeout(2100);
+    }).timeout(2200);
 
     it('New Queue: 2 session; 1500ms for each', async () => {
         const queue = new Queue<Data>({
@@ -98,7 +98,7 @@ describe.only('Testing "./lib/queue"', () => {
         assert.isFalse(await folder.someFile(objA.hash));
         assert.isFalse(await folder.someFile(objB.hash));
         assert.strictEqual(await folder.cantFiles(), 0);
-    }).timeout(2100);
+    }).timeout(2200);
 
     it('New Queue: 3 session; 1000ms for each', async () => {
         let id = 83;
@@ -142,5 +142,5 @@ describe.only('Testing "./lib/queue"', () => {
         assert.isFalse(await folder.someFile(objB.hash));
         assert.isFalse(await folder.someFile(objC.hash));
         assert.strictEqual(await folder.cantFiles(), 0);
-    }).timeout(2100);
+    }).timeout(2200);
 });

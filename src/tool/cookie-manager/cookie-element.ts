@@ -38,7 +38,7 @@ export class CookieElement<T = any> implements Cookie<T> {
     public set value(v: T) {
         // Parse the raw cookie string
         this._found = true;
-        const obj = parse(this._req.headers.cookie);
+        const obj = parse(this._req.headers.cookie ?? '');
 
         // Serialize the current value
         if (typeof v !== 'string') {

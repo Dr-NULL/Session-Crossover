@@ -40,7 +40,7 @@ export class Queue<T = any> {
         );
 
         // Configure
-        current.onExpires = this._destroy.bind(this);
+        current.onDestroy = this._destroy.bind(this);
         this._memory[hash] = current;
         return current;
     }

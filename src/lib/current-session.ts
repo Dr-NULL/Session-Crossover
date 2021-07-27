@@ -16,12 +16,12 @@ export class CurrentSession<T = any> implements Current<T> {
         return this._expires;
     }
 
-    private _onExpires: (hash: string) => void;
-    public get onExpires(): (hash: string) => void {
-        return this._onExpires;
+    private _onDestroy: (hash: string) => void;
+    public get onDestroy(): (hash: string) => void {
+        return this._onDestroy;
     }
-    public set onExpires(v: (hash: string) => void) {
-        this._onExpires = v;
+    public set onDestroy(v: (hash: string) => void) {
+        this._onDestroy = v;
     }
 
     constructor(hash: string, expires: number, folder: string) {
@@ -38,8 +38,8 @@ export class CurrentSession<T = any> implements Current<T> {
 
     private async _onTimeout(): Promise<void> {
         await this.destroy();
-        if (this._onExpires) {
-            this._onExpires(this._hash);
+        if (this._onDestroy) {
+            this._onDestroy(this._hash);
         }
     }
 

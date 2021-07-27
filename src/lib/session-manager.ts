@@ -1,24 +1,21 @@
 import { Current, Manager, Options } from './interfaces';
+import { SessionNotFoundError } from './errors';
 import { CurrentSession } from './current-session';
 import { CookieManager } from '../tool/cookie-manager';
 import { Queue } from './queue';
-import { SessionNotFoundError } from './errors';
 
 export class SessionManager<T = any> implements Manager<T> {
     private _cookieManager: CookieManager;
-    private _options: Options;
-    private _queue: Queue;
-
     private _current: CurrentSession<T>;
-    public get current(): Current<T> {
-        return this._current;
-    }
+    private _options: Options;
+    private _queue: Queue<T>;
 
-    constructor(cookieManager: CookieManager, options: Options, queue: Queue) {
+
+    constructor(cookieManager: CookieManager, queue: Queue, options: Options) {
         this._cookieManager = cookieManager;
         this._options = options;
         this._queue = queue;
-
+        
         // Get session id
         const cookie = this
             ._cookieManager
@@ -34,8 +31,24 @@ export class SessionManager<T = any> implements Manager<T> {
     }
 
     async create(): Promise<void> {
+        // Destroy the current session
+        await this.delete();
+
+        // Create new Session
+        this._current = await this._queue.new();
+        this._current.onDestroy = this._destroy.bind(this);
+
+        // Create the new cookie
+        const cookie = this._cookieManager.new(
+            this._options.name,
+            this._current.hash
+        );
+        cookie.save();
+    }
+
+    async delete(): Promise<void> {
         // Get session id
-        let cookie = this
+        const cookie = this
             ._cookieManager
             .get(this._options.name);
 
@@ -46,13 +59,16 @@ export class SessionManager<T = any> implements Manager<T> {
 
         // Destroy the current session
         if (this._current) {
-            this._current.destroy();
+            await this._current.destroy();
         }
-
-        // Create new Session
     }
 
-    async delete(): Promise<void> {
-        throw new Error('Method not implemented.');
+    public current(): Current<T> {
+        return this._current;
+    }
+
+    private _destroy(hash: string): void {
+        this._current = null;
+        this.delete();
     }
 }
