@@ -1,72 +1,45 @@
 import { RequestWithCookies, ResponseForCookies, Cookie } from './interfaces';
-import { CookieElement } from './cookie-element';
-import { CookieOptions } from 'express';
+import { CookieItem } from './cookie-item';
+import { parse } from 'cookie';
 
 export class CookieManager {
-    private _req: RequestWithCookies;
+    private _mem: { [key: string]: string; };
     private _res: ResponseForCookies;
-    private _opt: CookieOptions;
 
     constructor(
         req: RequestWithCookies,
-        res: ResponseForCookies,
-        opt?: CookieOptions,
+        res: ResponseForCookies
     ) {
-        this._req = req;
+        this._mem = parse(req.headers?.cookie ?? '');
         this._res = res;
-        this._opt = opt;
     }
 
-    getAll(): Cookie[] {
-        // Get raw cookies
-        const raw = this._req.headers.cookie;
-        if (!raw) {
-            return null;
-        }
-
-        const names = raw
-            .replace(/(^|;)[^=;]+(;\s+|$)/gi, '')
-            .replace(/;\s+/gi, '\n')
-            .replace(/=[^=]+$/gim, '')
-            .split(/\n/gi);
-
-        if (names) {
-            // Make the array
-            return names
-                .map(name => new CookieElement(
-                    this._req,
-                    this._res,
-                    name
-                ));
-        } else {
-            // Make an empty array
-            return [];
-        }
-    }
-
-    get<T = any>(name: string): Cookie<T> | null {
-        const raw = this._req.headers.cookie;
-        if (!raw) {
-            return null;
-        }
-
-        const names = raw
-        	.replace(/(^|;)[^=;]+(;\s+|$)/gi, '')
-            .replace(/;\s+/gi, '\n')
-            .replace(/=[^=]+$/gim, '')
-            .split(/\n/gi);
-            
-        const found = names?.find(x => x === name);
-        if (found) {
-            return new CookieElement<T>(this._req, this._res, name);
+    get<T = any>(name: string): Cookie<T> {
+        const value = this._mem[name];
+        if (typeof value === 'string') {
+            return new CookieItem(this._res, name, value);
         } else {
             return null;
         }
     }
 
-    new<T = any>(name: string, value: any, options?: CookieOptions): Cookie<T> {
-        const elem = new CookieElement<T>(this._req, this._res, name);
-        elem.value = value;
-        return elem;
+    getAll(): Cookie<any>[] {
+        const keys = Object.keys(this._mem);
+        const data: Cookie[] = [];
+
+        for (const key of keys) {
+            const obj = new CookieItem(this._res, key, this._mem[key]);
+            data.push(obj);
+        }
+
+        return data;
+    }
+
+    new<T = any>(name: string, value?: T): Cookie<T> {
+        const item = new CookieItem<T>(this._res, name);
+        if (value) {
+            item.value = value;
+        }
+        return item;
     }
 }

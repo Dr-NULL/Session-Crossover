@@ -77,7 +77,7 @@ export class CurrentSession<T = any> implements Current<T> {
         this._clock = null;
 
         if (await this._file.exists()) {
-            return this._file.delete();
+            await this._file.delete();
         }
     }
 }

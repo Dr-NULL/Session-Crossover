@@ -1,15 +1,13 @@
 import { Current, Manager, Options } from './interfaces';
-import { SessionNotFoundError } from './errors';
+import { Cookie, CookieManager } from '../tool/cookie-manager';
 import { CurrentSession } from './current-session';
-import { CookieManager } from '../tool/cookie-manager';
 import { Queue } from './queue';
 
-export class SessionManager<T = any> implements Manager<T> {
+export class SessionManager implements Manager {
     private _cookieManager: CookieManager;
-    private _current: CurrentSession<T>;
+    private _current: CurrentSession;
     private _options: Options;
-    private _queue: Queue<T>;
-
+    private _queue: Queue;
 
     constructor(cookieManager: CookieManager, queue: Queue, options: Options) {
         this._cookieManager = cookieManager;
@@ -25,9 +23,18 @@ export class SessionManager<T = any> implements Manager<T> {
         if (cookie) {
             this._current = this._queue.find(cookie.value);
             if (!this._current) {
-                throw new SessionNotFoundError(cookie.value);
+                cookie.kill({ path: '/' });
             }
         }
+    }
+
+    private _destroy(): void {
+        this._current = null;
+        this.delete();
+    }
+
+    public current<T = any>(): Current<T> {
+        return this._current;
     }
 
     async create(): Promise<void> {
@@ -38,37 +45,71 @@ export class SessionManager<T = any> implements Manager<T> {
         this._current = await this._queue.new();
         this._current.onDestroy = this._destroy.bind(this);
 
-        // Create the new cookie
-        const cookie = this._cookieManager.new(
-            this._options.name,
-            this._current.hash
-        );
-        cookie.save();
-    }
-
-    async delete(): Promise<void> {
-        // Get session id
-        const cookie = this
+        // Search the cookie
+        let cookie: Cookie = this
             ._cookieManager
             .get(this._options.name);
 
-        // Destroy the current cookie
-        if (cookie) {
-            cookie.kill({ path: '/' });
+        if (!cookie) {
+            // Create the new cookie
+            cookie = this._cookieManager.new(
+                this._options.name,
+                this._current.hash
+            );
+        } else {
+            // Update the current cookie
+            cookie.value = this._current.hash;
         }
 
+        // Save cookie
+        cookie.save({
+            path: '/',
+            secure: true,
+            maxAge: this._options.expires,
+            httpOnly: true,
+        });
+    }
+
+    async delete(): Promise<void> {
         // Destroy the current session
         if (this._current) {
             await this._current.destroy();
         }
+
+        // Search the cookie
+        const cookie: Cookie = this
+            ._cookieManager
+            .get(this._options.name);
+
+        // Destroy the cookie
+        if (cookie) {
+            cookie.kill({
+                path: '/',
+                secure: true,
+                httpOnly: true,
+            });
+        }
     }
 
-    public current(): Current<T> {
-        return this._current;
-    }
+    rewind(): void {
+        if (this._current) {
+            // Reset the current session timeout
+            this._current.rewind();
 
-    private _destroy(hash: string): void {
-        this._current = null;
-        this.delete();
+            // Search the cookie
+            const cookie: Cookie = this
+                ._cookieManager
+                .get(this._options.name);
+    
+            // Save cookie
+            if (cookie) {
+                cookie.save({
+                    path: '/',
+                    secure: true,
+                    maxAge: this._options.expires,
+                    httpOnly: true,
+                });
+            }
+        }
     }
 }

@@ -6,6 +6,6 @@ export interface Cookie<T = any> {
     get value(): T;
     set value(v: T);
 
-    save(): void;
+    save(options?: CookieOptions): void;
     kill(options?: CookieOptions): void;
 }

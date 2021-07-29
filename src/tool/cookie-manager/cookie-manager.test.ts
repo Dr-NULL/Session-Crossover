@@ -1,12 +1,12 @@
-import { assert } from 'chai';
-import { CookieOptions } from 'express';
-import { CookieManager } from './cookie-manager';
 import { RequestWithCookies, ResponseForCookies } from './interfaces';
+import { CookieManager } from './cookie-manager';
+import { CookieOptions } from 'express';
+import { assert } from 'chai';
 
 /**
  * Fake class for request simulations
  */
-class FakeRequ implements RequestWithCookies {
+ class FakeRequ implements RequestWithCookies {
     private _headers: { cookie?: string; };
     public get headers(): { cookie?: string; } {
         return this._headers;
@@ -80,21 +80,4 @@ describe('Testing "./tool/cookie-manager"', () => {
         assert.isTrue(arr.some(x => x.name === 'cookie c'));
         assert.isFalse(arr.some(x => x.name === 'cookie d'));
     });
-
-    it('Get cookie instances 03', () => {
-        const req = new FakeRequ([
-            { name: 'cook;e=a=lol', value: '1111' },
-            { name: 'cookie=b=lol', value: '2222' },
-            { name: 'cookie=c=lol', value: '3333' },
-        ]);
-        
-        const res = new FakeResp();
-        const man = new CookieManager(req, res);
-        const arr = man.getAll();
-
-        assert.strictEqual(arr.length, 2);
-        assert.isTrue(arr.some(x => x.name === 'cookie=b=lol'));
-        assert.isTrue(arr.some(x => x.name === 'cookie=c=lol'));
-        assert.isFalse(arr.some(x => x.name === 'cookie=d=lol'));
-    }).timeout(Number.MAX_SAFE_INTEGER);
 });

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "cls && npx mocha ./**/*.test.ts --require ts-node/register",
-    "start": "cls && npx nodemon --require ts-node/register ./src/test.ts"
+    "start": "cls && npx nodemon --watch ./src/** --exec ts-node ./src/test.ts"
   },
   "files": [
     "dist"

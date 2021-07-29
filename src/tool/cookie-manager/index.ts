@@ -1,2 +1,2 @@
-export { CookieManager } from './cookie-manager';
 export * from './interfaces';
+export { CookieManager } from './cookie-manager';

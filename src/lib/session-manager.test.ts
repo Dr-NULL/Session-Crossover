@@ -45,9 +45,9 @@ describe('Testing "./lib/session-manager"', () => {
             expires: 1500
         };
 
-        const queue = new Queue<Data>(opt);
+        const queue = new Queue(opt);
         const cookieManager = new CookieManager(req, res);
-        const sessionManager = new SessionManager<Data>(
+        const sessionManager = new SessionManager(
             cookieManager,
             queue,
             opt
@@ -64,7 +64,7 @@ describe('Testing "./lib/session-manager"', () => {
         let data: Data;
         setTimeout(async () => {
             data = await sessionManager
-                .current()
+                .current<Data>()
                 .load();
         }, 1000);
 
@@ -82,7 +82,7 @@ describe('Testing "./lib/session-manager"', () => {
             name: 'pendeja',
             expires: 1500
         };
-        const queue = new Queue<Data>(opt);
+        const queue = new Queue(opt);
 
         // Client A
         const reqA = new FakeReq();
@@ -98,7 +98,7 @@ describe('Testing "./lib/session-manager"', () => {
         setTimeout(async () => {
             await sessionManagA.create();
             await sessionManagA
-                .current()
+                .current<Data>()
                 .save({
                     id: 999,
                     value: ':wold:'
@@ -109,10 +109,10 @@ describe('Testing "./lib/session-manager"', () => {
         let dataA: Data;
         setTimeout(async () => {
             dataA = await sessionManagA
-                .current()
+                .current<Data>()
                 .load();
 
-            assert.isNotNull(sessionManagA.current());
+            assert.isNotNull(sessionManagA.current<Data>());
         }, 500);
 
         // Client B
@@ -129,7 +129,7 @@ describe('Testing "./lib/session-manager"', () => {
         setTimeout(async () => {
             await sessionManagB.create();
             await sessionManagB
-                .current()
+                .current<Data>()
                 .save({
                     id: 111,
                     value: ':pyra:'
@@ -140,20 +140,20 @@ describe('Testing "./lib/session-manager"', () => {
         let dataB: Data;
         setTimeout(async () => {
             dataB = await sessionManagB
-                .current()
+                .current<Data>()
                 .load();
 
-            assert.isNotNull(sessionManagB.current());
+            assert.isNotNull(sessionManagB.current<Data>());
         }, 1000);
 
         await delay(1550);
-        assert.isNull(sessionManagA.current());
+        assert.isNull(sessionManagA.current<Data>());
         assert.hasAllKeys(dataA, [ 'id', 'value' ]);
         assert.strictEqual(dataA?.id, 999);
         assert.strictEqual(dataA?.value, ':wold:');
         
         await delay(500);
-        assert.isNull(sessionManagB.current());
+        assert.isNull(sessionManagB.current<Data>());
         assert.hasAllKeys(dataB, [ 'id', 'value' ]);
         assert.strictEqual(dataB?.id, 111);
         assert.strictEqual(dataB?.value, ':pyra:');

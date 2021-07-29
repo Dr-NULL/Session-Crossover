@@ -2,9 +2,9 @@ import { Options, QueueMemory } from './interfaces';
 import { CurrentSession } from './current-session';
 import { Hasher } from '../tool/hasher';
 
-export class Queue<T = any> {
+export class Queue {
     private _options: Options;
-    private _memory: QueueMemory<T>;
+    private _memory: QueueMemory;
     private _hasher: Hasher;
 
     constructor(options: Options) {
@@ -20,11 +20,11 @@ export class Queue<T = any> {
         return !!this._memory[hash];
     }
 
-    find(hash:string): CurrentSession<T> {
+    find(hash:string): CurrentSession {
         return this._memory[hash];
     }
 
-    async new(): Promise<CurrentSession<T>> {
+    async new(): Promise<CurrentSession> {
         // Build the hash
         const time = Date.now();
         let hash: string;

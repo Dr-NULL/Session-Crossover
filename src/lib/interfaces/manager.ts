@@ -1,7 +1,8 @@
 import { Current } from './current';
 
-export interface Manager<T = any> {
-    current(): Current<T>;
+export interface Manager {
+    current<T = any>(): Current<T>;
     create(): Promise<void>;
     delete(): Promise<void>;
+    rewind(): void;
 }

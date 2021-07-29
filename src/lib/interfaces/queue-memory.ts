@@ -1,5 +1,5 @@
 import { CurrentSession } from '../current-session';
 
-export interface QueueMemory<T = any> {
-    [key: string]: CurrentSession<T>;    
+export interface QueueMemory {
+    [key: string]: CurrentSession;    
 }

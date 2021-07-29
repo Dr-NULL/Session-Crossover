@@ -1,79 +1,59 @@
+import { sessionCrossover } from '.';
 import express, { json } from 'express';
-import { CookieManager } from './tool/cookie-manager';
-import { sessionCrossover } from './lib';
 
+interface Data {
+    id: number;
+    value: string;
+}
+
+let id = 0;
 const app = express();
+
 app.use(sessionCrossover({
-    folder: './data',
-    expire: 2
+    path: './data',
+    expires: 1000 * 10
 }));
 
-app.get('/read', (req, res) => {
-    // const manager = new CookieManager(req, res);
-    // const data = manager
-    //     .getAll()
-    //     .map(x => ({
-    //         name: x.name,
-    //         value: x.value
-    //     }));
+app.use(json({
+    strict: false
+}));
 
-    // res.send(data);
-    res.end(req.headers.cookie);
+app.get('/create', async (req, res) => {
+    const current = req.session.current<Data>();    
+    if (!current) {
+        await req.session.create();
+        await req.session
+            .current<Data>()
+            .save({
+                id: ++id,
+                value: new Date().toJSON()
+            });
+
+        res.json('Sesión creada');
+    } else {
+        req.session.rewind();
+        res.json('Sesión reiniciada');
+    }
 });
 
-app.get('/write', (req, res) => {
-    const maxAge = 1000 * 10;
-    res.cookie('cook; ie-a', 666, {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.cookie('cookie-b', 'jajaja;jejeje', {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.cookie('cookie-c', 'jajaja=jejeje', {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.cookie('cookie-d', '     lol     ', {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.cookie('cookie e', 'invalid!!!', {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.cookie('cookie=f', 'joder=nya', {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.cookie('cookie_g', null, {
-        path: '/',
-        secure: true,
-        maxAge
-    });
-
-    res.contentType('text');
-    res.end('write done!', 'utf8');
+app.get('/destroy', async (req, res) => {
+    const current = req.session.current<Data>();
+    if (current) {
+        await req.session.delete();
+        res.json('Sesión destruida!');
+    } else {
+        res.json('No hay sesión activa...');
+    }
 });
 
-app.get('/delete', (req, res) => {
-    res.clearCookie('cookie-a');
-    res.clearCookie('cookie-b');
-
-    res.end('Deleting done!', 'utf8');
+app.get('/read', async (req, res) => {
+    const current = req.session.current<Data>();
+    if (current) {
+        const data = await current.load();
+        res.json(data);
+    } else {
+        res.json('Usted no ha iniciado sesión');
+    }
 });
 
 app.listen(80, '127.0.0.1', () => {

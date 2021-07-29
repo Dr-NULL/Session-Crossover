@@ -36,7 +36,7 @@ describe('Testing "./lib/queue"', () => {
     });
 
     it('New Queue: 1 session; 2000ms for each', async () => {
-        const queue = new Queue<Data>({
+        const queue = new Queue({
             path: './test',
             expires: 2000
         });
@@ -57,7 +57,7 @@ describe('Testing "./lib/queue"', () => {
     }).timeout(2200);
 
     it('New Queue: 2 session; 1500ms for each', async () => {
-        const queue = new Queue<Data>({
+        const queue = new Queue({
             path: './test',
             expires: 1500
         });
@@ -102,7 +102,7 @@ describe('Testing "./lib/queue"', () => {
 
     it('New Queue: 3 session; 1000ms for each', async () => {
         let id = 83;
-        const queue = new Queue<Data>({
+        const queue = new Queue({
             path: './test',
             expires: 1000
         });

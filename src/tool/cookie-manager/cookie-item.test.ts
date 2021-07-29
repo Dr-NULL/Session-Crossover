@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { CookieOptions } from 'express';
-import { CookieElement } from './cookie-element';
+import { CookieManager } from './cookie-manager';
 import { RequestWithCookies, ResponseForCookies } from './interfaces';
 
 /**
@@ -34,30 +34,43 @@ import { RequestWithCookies, ResponseForCookies } from './interfaces';
  * Fake class for response simulations
  */
 class FakeResp implements ResponseForCookies {
-    cookie(name: string, val: string, options: CookieOptions): FakeResp {
+    private _rawName: string;
+    public get rawName(): string {
+        return this._rawName;
+    }
+
+    private _rawValue: string;
+    public get rawValue(): string {
+        return this._rawValue;
+    }
+
+    cookie(name: string, val: string, options: CookieOptions): this {
+        this._rawName = name;
+        this._rawValue = val;
         return this;
     }
 
-    clearCookie(name: string, options: CookieOptions): ResponseForCookies {
+    clearCookie(name: string, options: CookieOptions): this {
         return this;
     }
 }
 
-describe('Testing "./tool/cookie-manager/cookie-element"', () => {
+describe('Testing "./tool/cookie-manager/cookie-item"', () => {
     const res = new FakeResp();
     const req = new FakeRequ([
         { name: 'cookie-a', value: 'hola mundo' },
         { name: 'cookie-b', value: `j:${JSON.stringify({ text: "joder", value: 555 })}` },
     ]);
+    const manager = new CookieManager(req, res);
 
     it('Get "cookie-a" value: "hola mundo"', () => {
-        const obj = new CookieElement<string>(req, res, 'cookie-a');
+        const obj = manager.get('cookie-a');
         assert.strictEqual(obj.name, 'cookie-a');
         assert.strictEqual(obj.value, 'hola mundo');
     });
 
     it('Get "cookie-b" value: { text: "joder", value: 555 }', () => {
-        const obj = new CookieElement<{ text: string, value: number; }>(req, res, 'cookie-b');
+        const obj = manager.get<{ text: string, value: number; }>('cookie-b');
         assert.strictEqual(obj.name, 'cookie-b');
         assert.hasAllKeys(obj.value ?? { }, [ 'text', 'value' ]);
         assert.strictEqual(obj.value?.text, 'joder');
@@ -65,28 +78,34 @@ describe('Testing "./tool/cookie-manager/cookie-element"', () => {
     });
 
     it('Set "cookie-a" value', () => {
-        const obj = new CookieElement(req, res, 'cookie-a');
+        const obj = manager.get('cookie-a');
         obj.value = {
             id: 666,
             cod: 'RTX3090TI',
             descript: 'GPU w/ ray tracing'
         };
+        obj.save();
+
+        const raw = 'j%3A%7B%22id%22%3A666%2C%22cod%22%3A%22RTX3090TI%22%2C%22descript%22%3A%22GPU%20w%2F%20ray%20tracing%22%7D';
+        assert.strictEqual(res.rawValue, raw);
     });
 
     it('Set "cookie-c" value (not exists)', () => {
-        const obj = new CookieElement(req, res, 'cookie-c');
+        const obj = manager.new('cookie-c');
         obj.value = 'ajajajaja';
-        assert.match(req.headers.cookie, /cookie-c=ajajajaja$/gi);
+        obj.save();
+        assert.strictEqual(res.rawValue, 'ajajajaja');
     });
 
     it('Set "cookie-d" value (not exists)', () => {
-        const obj = new CookieElement(req, res, 'cookie-d');
+        const obj = manager.new('cookie-d');
         obj.value = {
             text: 'joder',
             value: 666
         };
+        obj.save();
 
-        const raw = 'cookie-d=j%3A%7B%22text%22%3A%22joder%22%2C%22value%22%3A666%7D';
-        assert.isTrue(req.headers.cookie.endsWith(raw));
+        const raw = 'j%3A%7B%22text%22%3A%22joder%22%2C%22value%22%3A666%7D';
+        assert.strictEqual(res.rawValue, raw);
     });
 });
