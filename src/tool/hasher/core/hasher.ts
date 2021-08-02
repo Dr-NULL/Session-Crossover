@@ -48,15 +48,6 @@ export class Hasher {
     public get saltLength(): number {
         return this._options.saltLength;
     }
-    public set saltLength(v: number) {
-        if (v < 1 || v > 255) {
-            throw new Error(
-                'The value given it\'s out of range. The range of values are between 1 - 255.'
-            );
-        }
-
-        this._options.saltLength = Math.trunc(v);
-    }
 
     /**
      * The amount of threads to compute the hash on. Each thread has a memory pool with `memoryCost`
@@ -103,6 +94,12 @@ export class Hasher {
      * @param length The salt length desired.
      */
     createRndSalt(length: number): void {
+        if (length < 1 || length > 255) {
+            throw new Error(
+                'The value given it\'s out of range. The range of values are between 1 - 255.'
+            );
+        }
+
         length = Math.trunc(length);
         this._options.salt = Buffer.from(randomBytes(length));
         this._options.saltLength = length;
@@ -127,7 +124,7 @@ export class Hasher {
      * @param value the input value do you want to hash.
      */
     public async hash(value: string | number | Buffer) {
-        const salt = Buffer.from(randomBytes(this._options.saltLength));
+        const salt = this._options.salt ?? randomBytes(this._options.saltLength);
         value = this.toBuffer(value);
 
         const opts: Options & { raw: true } = { salt: salt, raw: true };
@@ -140,7 +137,7 @@ export class Hasher {
     /**
      * Get a new Validator of hashes using the current Hasher configuration.
      */
-    newValidator(): Validator {
+    getValidator(): Validator {
         return new Validation(this._options);
     }
 }

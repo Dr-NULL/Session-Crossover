@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as Wrapper from './fs-wrappers';
+import * as fsPromises from 'fs/promises';
 import { resolve, join } from 'path';
 
 import { FSys } from './fsys';
@@ -26,7 +26,7 @@ export class Folder extends FSys {
 
         // Make directory
         if (fail) {
-            await Wrapper.mkdir(this._path, { recursive: true });
+            await fsPromises.mkdir(this._path, { recursive: true });
         }
     }
 
@@ -49,7 +49,7 @@ export class Folder extends FSys {
     }
 
     async children(): Promise<FolderChildren> {
-        const names = await Wrapper.readDir(this._path);
+        const names = await fsPromises.readdir(this._path);
         const resp: FolderChildren = {
             folders: [],
             files: []
@@ -57,7 +57,7 @@ export class Folder extends FSys {
 
         for (const name of names) {
             const path = join(this._path, name);
-            const stat = await Wrapper.stats(path);
+            const stat = await fsPromises.stat(path);
 
             if (stat.isDirectory()) {
                 const obj = new Folder(path);
@@ -95,7 +95,7 @@ export class Folder extends FSys {
     }
     
     async delete(): Promise<void> {
-        await Wrapper.rm(this._path, { recursive: true });
+        await fsPromises.rm(this._path, { recursive: true });
     }
 
     deleteSync(): void {

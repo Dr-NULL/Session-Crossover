@@ -1,4 +1,4 @@
-import * as Wrapper from './fs-wrappers';
+import * as fsPromises from 'fs/promises';
 import { resolve } from 'path';
 import { assert } from 'chai';
 import { File } from './file';
@@ -6,12 +6,12 @@ import { File } from './file';
 describe('Testing "./tool/fsys/file"', () => {
     before(async ()=> {
         const path = resolve('./data-test');
-        await Wrapper.mkdir(path);
+        await fsPromises.mkdir(path);
     });
 
     after(async ()=> {
         const path = resolve('./data-test');
-        await Wrapper.rm(path, { recursive: true });
+        await fsPromises.rm(path, { recursive: true });
     });
 
     it('Create a new file with "hello world"', async () => {

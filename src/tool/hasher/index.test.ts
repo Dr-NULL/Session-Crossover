@@ -31,10 +31,10 @@ describe('Testing "./tool/hasher"', () => {
         it(`Generate Hash: length = ${i}`, async () => {
             const hasher = new Hasher();
             hasher.hashLength = i;
-            hasher.saltLength = i;
+            hasher.createRndSalt(i);
 
             const resp01 = await hasher.hash(text);
-            const valida = hasher.newValidator();
+            const valida = hasher.getValidator();
             assert.isTrue(await valida.validate(resp01, text));
         });
     }
@@ -44,7 +44,7 @@ describe('Testing "./tool/hasher"', () => {
         const result = await hasher.hash(text);
 
         // Check false
-        const valida = hasher.newValidator();
+        const valida = hasher.getValidator();
         await asyncThrows(
             async () => await valida.validate('jajaja', text),
             'The text given is incomplete'
@@ -56,7 +56,7 @@ describe('Testing "./tool/hasher"', () => {
         const result = await hasher.hash(text);
 
         // Check false
-        const valida = hasher.newValidator();
+        const valida = hasher.getValidator();
         await asyncThrows(
             async () => await valida.validate('1111111111111111111111111111111111111111111110', text),
             'The text given has corrupted or incompatible'
@@ -73,7 +73,7 @@ describe('Testing "./tool/hasher"', () => {
         hexStr += '666';
 
         // Check false
-        const valida = hasher.newValidator();
+        const valida = hasher.getValidator();
         assert.isFalse(await valida.validate(hexStr, text));
     });
 });

@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { assert } from 'chai';
-import * as Wrapper from './fs-wrappers';
+import * as fsPromises from 'fs/promises';
 
 import { Folder } from './folder';
 
@@ -17,28 +17,28 @@ describe('Testing "./tool/fsys/folder"', () => {
     
             for (let i = 0; i < 3; i++) {
                 const path = join(folder1.path, `file-test-${i}.txt`);
-                await Wrapper.writeFile(path, byte);
+                await fsPromises.writeFile(path, byte);
             }
     
             const folder2 = new Folder('./data-test/inside');
             await folder2.make();
             for (let i = 0; i < 3; i++) {
                 const path = join(folder2.path, `file-test-${i}.txt`);
-                await Wrapper.writeFile(path, byte);
+                await fsPromises.writeFile(path, byte);
             }
     
             const folder3 = new Folder('./data-test/inside/alt1');
             await folder3.make();
             for (let i = 0; i < 3; i++) {
                 const path = join(folder3.path, `file-test-${i}.txt`);
-                await Wrapper.writeFile(path, byte);
+                await fsPromises.writeFile(path, byte);
             }
     
             const folder4 = new Folder('./data-test/inside/alt2');
             await folder4.make();
             for (let i = 0; i < 3; i++) {
                 const path = join(folder4.path, `file-test-${i}.txt`);
-                await Wrapper.writeFile(path, byte);
+                await fsPromises.writeFile(path, byte);
             }
         });
     

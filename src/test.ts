@@ -1,5 +1,6 @@
-import { sessionCrossover } from '.';
 import express, { json } from 'express';
+import { sessionCrossover } from '.';
+import { randomUUID } from 'crypto';
 
 interface Data {
     id: number;
@@ -11,7 +12,8 @@ const app = express();
 
 app.use(sessionCrossover({
     path: './data',
-    expires: 1000 * 10
+    expires: 1000 * 10,
+    hashLength: 126
 }));
 
 app.use(json({
@@ -19,20 +21,27 @@ app.use(json({
 }));
 
 app.get('/create', async (req, res) => {
-    const current = req.session.current<Data>();    
-    if (!current) {
-        await req.session.create();
-        await req.session
-            .current<Data>()
-            .save({
-                id: ++id,
-                value: new Date().toJSON()
-            });
+    try {
+        const current = req.session.current<Data>();
+        const uuid = randomUUID();
 
-        res.json('Sesión creada');
-    } else {
-        req.session.rewind();
-        res.json('Sesión reiniciada');
+        if (!current) {
+            await req.session.create();
+            await req.session
+                .current<Data>()
+                .save({
+                    id: ++id,
+                    value: new Date().toJSON()
+                });
+    
+            res.json('Sesión creada');
+        } else {
+            req.session.rewind();
+            res.json('Sesión reiniciada');
+        }
+    } catch (err) {
+        console.error(err);
+        res.json(err);
     }
 });
 

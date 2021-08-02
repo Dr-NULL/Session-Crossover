@@ -6,9 +6,9 @@ export class CurrentSession<T = any> implements Current<T> {
     private _clock: NodeJS.Timeout;
     private _file: File;
 
-    private _hash: string;
-    public get hash(): string {
-        return this._hash;
+    private _uuid: string;
+    public get uuid(): string {
+        return this._uuid;
     }
 
     private _expires: number;
@@ -24,11 +24,11 @@ export class CurrentSession<T = any> implements Current<T> {
         this._onDestroy = v;
     }
 
-    constructor(hash: string, expires: number, folder: string) {
+    constructor(uuid: string, expires: number, folder: string) {
         this._expires = expires;
         this._killed = false;
-        this._hash = hash;
-        this._file = new File(`${folder}/${hash}.json`);
+        this._uuid = uuid;
+        this._file = new File(`${folder}/${uuid}.json`);
 
         this._clock = setTimeout(
             this._onTimeout.bind(this),
@@ -39,7 +39,7 @@ export class CurrentSession<T = any> implements Current<T> {
     private async _onTimeout(): Promise<void> {
         await this.destroy();
         if (this._onDestroy) {
-            this._onDestroy(this._hash);
+            this._onDestroy(this._uuid);
         }
     }
 

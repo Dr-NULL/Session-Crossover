@@ -48,12 +48,12 @@ describe('Testing "./lib/queue"', () => {
         });
 
         await delay(500);
-        assert.isTrue(queue.some(elem.hash));
-        assert.isTrue(await folder.someFile(elem.hash));
+        assert.isTrue(queue.some(elem.uuid));
+        assert.isTrue(await folder.someFile(elem.uuid));
 
         await delay(1525);
-        assert.isFalse(queue.some(elem.hash));
-        assert.isFalse(await folder.someFile(elem.hash));
+        assert.isFalse(queue.some(elem.uuid));
+        assert.isFalse(await folder.someFile(elem.uuid));
     }).timeout(2200);
 
     it('New Queue: 2 session; 1500ms for each', async () => {
@@ -69,6 +69,10 @@ describe('Testing "./lib/queue"', () => {
                 id: 666,
                 nick: 'the angelic process'
             });
+            
+            assert.isTrue(queue.some(objA.uuid));
+            assert.isTrue(await folder.someFile(objA.uuid));
+            assert.strictEqual(await folder.cantFiles(), 1);
         }, 0);
 
         let objB: CurrentSession<Data>;
@@ -78,27 +82,21 @@ describe('Testing "./lib/queue"', () => {
                 id: 999,
                 nick: 'el lago de las orquídeas en llamas'
             });
+            
+            assert.isTrue(queue.some(objA.uuid));
+            assert.isTrue(queue.some(objB.uuid));
+            assert.isTrue(await folder.someFile(objA.uuid));
+            assert.isTrue(await folder.someFile(objB.uuid));
+            assert.strictEqual(await folder.cantFiles(), 2);
         }, 500);
 
-        await delay(500);
-        assert.isTrue(queue.some(objA.hash));
-        assert.isTrue(await folder.someFile(objA.hash));
-        assert.strictEqual(await folder.cantFiles(), 1);
-
-        await delay(500);
-        assert.isTrue(queue.some(objA.hash));
-        assert.isTrue(queue.some(objB.hash));
-        assert.isTrue(await folder.someFile(objA.hash));
-        assert.isTrue(await folder.someFile(objB.hash));
-        assert.strictEqual(await folder.cantFiles(), 2);
-
-        await delay(1025);
-        assert.isFalse(queue.some(objA.hash));
-        assert.isFalse(queue.some(objB.hash));
-        assert.isFalse(await folder.someFile(objA.hash));
-        assert.isFalse(await folder.someFile(objB.hash));
+        await delay(2010);
+        assert.isFalse(queue.some(objA.uuid));
+        assert.isFalse(queue.some(objB.uuid));
+        assert.isFalse(await folder.someFile(objA.uuid));
+        assert.isFalse(await folder.someFile(objB.uuid));
         assert.strictEqual(await folder.cantFiles(), 0);
-    }).timeout(2200);
+    }).timeout(2150);
 
     it('New Queue: 3 session; 1000ms for each', async () => {
         let id = 83;
@@ -135,12 +133,12 @@ describe('Testing "./lib/queue"', () => {
         }, 1000);
         
         await delay(2025);
-        assert.isFalse(queue.some(objA.hash));
-        assert.isFalse(queue.some(objB.hash));
-        assert.isFalse(queue.some(objC.hash));
-        assert.isFalse(await folder.someFile(objA.hash));
-        assert.isFalse(await folder.someFile(objB.hash));
-        assert.isFalse(await folder.someFile(objC.hash));
+        assert.isFalse(queue.some(objA.uuid));
+        assert.isFalse(queue.some(objB.uuid));
+        assert.isFalse(queue.some(objC.uuid));
+        assert.isFalse(await folder.someFile(objA.uuid));
+        assert.isFalse(await folder.someFile(objB.uuid));
+        assert.isFalse(await folder.someFile(objC.uuid));
         assert.strictEqual(await folder.cantFiles(), 0);
-    }).timeout(2200);
+    }).timeout(2250);
 });

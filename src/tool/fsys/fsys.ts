@@ -1,6 +1,6 @@
-import * as fsModule from 'fs';
-import * as pathModule from 'path';
-import * as Wrapper from './fs-wrappers';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as fsPromises from 'fs/promises';
 
 export abstract class FSys {
     protected _path: string;
@@ -28,7 +28,7 @@ export abstract class FSys {
      * @param pathParts parts of the element path, these will be resolved relative to cwd.
      */
     constructor(...pathParts: string[]) {
-        this._path = pathModule.resolve(...pathParts);
+        this._path = path.resolve(...pathParts);
     }
 
     /**
@@ -36,11 +36,11 @@ export abstract class FSys {
      * exists, throws an error.
      * @returns A Promise with the Stats of the current element.
      */
-    stats(): Promise<fsModule.Stats>
-    stats(bigInt: false): Promise<fsModule.Stats>
-    stats(bigInt: true): Promise<fsModule.BigIntStats>
-    stats(bigInt?: boolean): Promise<fsModule.Stats | fsModule.BigIntStats> {
-        return Wrapper.stats(this._path, bigInt);
+    stats(): Promise<fs.Stats>;
+    stats(opts: fs.StatOptions & { bigint?: false; }): Promise<fs.Stats>;
+    stats(opts: fs.StatOptions & { bigint: true; }): Promise<fs.BigIntStats>;
+    stats(opts?: fs.StatOptions): Promise<fs.Stats | fs.BigIntStats> {
+        return fsPromises.stat(this._path, opts);
     }
 
     /**
@@ -48,11 +48,11 @@ export abstract class FSys {
      * exists, throws an error.
      * @returns The Stats of the current element.
      */
-    statsSync(): fsModule.Stats
-    statsSync(bigInt: false): fsModule.Stats
-    statsSync(bigInt: true): fsModule.BigIntStats
-    statsSync(bigInt?: boolean): fsModule.Stats | fsModule.BigIntStats {
-        return fsModule.statSync(this._path, { bigint: bigInt });
+    statsSync(): fs.Stats
+    statsSync(bigInt: false): fs.Stats
+    statsSync(bigInt: true): fs.BigIntStats
+    statsSync(bigInt?: boolean): fs.Stats | fs.BigIntStats {
+        return fs.statSync(this._path, { bigint: bigInt });
     }
 
     /**

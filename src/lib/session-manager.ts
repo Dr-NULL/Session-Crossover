@@ -54,11 +54,11 @@ export class SessionManager implements Manager {
             // Create the new cookie
             cookie = this._cookieManager.new(
                 this._options.name,
-                this._current.hash
+                this._current.uuid
             );
         } else {
             // Update the current cookie
-            cookie.value = this._current.hash;
+            cookie.value = this._current.uuid;
         }
 
         // Save cookie
@@ -87,6 +87,7 @@ export class SessionManager implements Manager {
                 path: '/',
                 secure: true,
                 httpOnly: true,
+                sameSite: 'strict'
             });
         }
     }
@@ -108,6 +109,7 @@ export class SessionManager implements Manager {
                     secure: true,
                     maxAge: this._options.expires,
                     httpOnly: true,
+                    sameSite: 'strict'
                 });
             }
         }

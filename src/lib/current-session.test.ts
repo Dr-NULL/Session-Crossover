@@ -21,7 +21,7 @@ describe('Testing "./lib/current-session"', () => {
         return new Promise<void>(async resolve => {
             // Create the session value
             const curr = new CurrentSession('aaaaa', 2000, folder.path);
-            const file = new File(`${folder.path}/${curr.hash}.json`);
+            const file = new File(`${folder.path}/${curr.uuid}.json`);
 
             // Save current value
             await curr.save({
@@ -42,7 +42,7 @@ describe('Testing "./lib/current-session"', () => {
         return new Promise<void>(async resolve => {
             // Create the session value
             const curr = new CurrentSession('bbbbb', 1500, folder.path);
-            const file = new File(`${folder.path}/${curr.hash}.json`);
+            const file = new File(`${folder.path}/${curr.uuid}.json`);
             const time = Date.now();
 
             // Save current value
@@ -69,7 +69,7 @@ describe('Testing "./lib/current-session"', () => {
         return new Promise<void>(async resolve => {
             // Create the session value
             const curr = new CurrentSession<Data>('ccccc', 2000, folder.path);
-            const file = new File(`${folder.path}/${curr.hash}.json`);
+            const file = new File(`${folder.path}/${curr.uuid}.json`);
 
             // Save current value
             await curr.save({

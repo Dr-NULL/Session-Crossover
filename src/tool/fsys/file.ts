@@ -2,7 +2,7 @@ import { FSys } from './fsys';
 import { resolve } from 'path';
 
 import * as fs from 'fs';
-import * as Wrapper from './fs-wrappers';
+import * as fsPromises from 'fs/promises';
 
 export class File extends FSys {
     constructor(...pathParts: string[]) {
@@ -10,7 +10,7 @@ export class File extends FSys {
     }
 
     async delete(): Promise<void> {
-        await Wrapper.unlink(this._path);
+        await fsPromises.unlink(this._path);
     }
 
     deleteSync(): void {
@@ -19,7 +19,7 @@ export class File extends FSys {
 
     async copy(...pathParts: string[]): Promise<File> {
         const file = new File(...pathParts);
-        await Wrapper.copyFile(this._path, file.path);
+        await fsPromises.copyFile(this._path, file.path);
         return file;
     }
 
@@ -31,8 +31,8 @@ export class File extends FSys {
 
     async move(...pathParts: string[]): Promise<void> {
         const dest = resolve(...pathParts);
-        await Wrapper.copyFile(this._path, dest);
-        await Wrapper.unlink(this._path);
+        await fsPromises.copyFile(this._path, dest);
+        await fsPromises.unlink(this._path);
         this._path = dest;
     }
 
@@ -43,11 +43,11 @@ export class File extends FSys {
         this._path = dest;
     }
 
-    public async read(): Promise<Buffer> {
-        return Wrapper.readFile(this._path);
+    public read(): Promise<Buffer> {
+        return fsPromises.readFile(this._path);
     }
 
-    public async write(byte: Buffer): Promise<void> {
-        return Wrapper.writeFile(this._path, byte);
+    public write(byte: Buffer): Promise<void> {
+        return fsPromises.writeFile(this._path, byte);
     }
 }
