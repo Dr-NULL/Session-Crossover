@@ -1,11 +1,11 @@
 {
-  "name": "session-crossover",
-  "version": "0.4.0",
-  "description": "A NodeJS package that stores the current session into encrypted JSON for ExpressJS.",
+  "name": "suspicious-session",
+  "version": "0.0.1",
+  "description": "A NodeJS package that stores the current session into encrypted files for ExpressJS.",
   "main": "dist/index.js",
   "scripts": {
     "test": "cls && npx mocha ./**/*.test.ts --require ts-node/register",
-    "start": "cls && npx nodemon --watch ./src/** --exec ts-node ./src/test.ts"
+    "start": "cls && ts-node ./src/test.ts"
   },
   "files": [
     "dist"

@@ -189,4 +189,42 @@ describe('Testing "./lib/current-session"', () => {
             }
         });
     }).timeout(550);
+
+    it('instances: 1; maxAge: 500 ms; rewind() x 5', () => new Promise<void>(async (resolve, reject) => {
+        try {
+            // Create the instance
+            const obj = new CurrentSession(aes, uuidV4(), {
+                path: folderPath,
+                maxAge: 500,
+            });
+    
+            // Trigger end of process
+            obj.onDestroy = () => resolve();
+    
+            // Save data
+            await obj.save({
+                text: 'no veas nada',
+                value: 827369
+            });
+    
+            // Rewind the session
+            let count = 0;
+            const clock = setInterval(() => {
+                try {
+                    if (count >= 5) {
+                        // Destroy the clock
+                        clearInterval(clock);
+                    } else {
+                        // Reset the internal clock
+                        obj.rewind();
+                        count++;
+                    }
+                } catch (err) {
+                    reject(err);
+                }
+            }, obj.maxAge / 2);
+        } catch (err) {
+            reject(err);
+        }
+    })).timeout(1900);
 });

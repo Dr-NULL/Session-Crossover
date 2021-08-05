@@ -6,7 +6,7 @@ import { Options } from './interfaces';
 import { SessionQueue } from './session-queue';
 import { assert } from 'chai';
 
-describe.only('Testing "./lib/session-queue"', () => {
+describe('Testing "./lib/session-queue"', () => {
     const options: Options = {
         maxAge: 500,
         path: resolve('./data')
@@ -22,7 +22,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "aes-128-ccm"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'aes-128-ccm',
+            algorithm: 'aes-128-ccm',
             ...options,
         });
 
@@ -36,7 +36,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "aes-128-gcm"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'aes-128-gcm',
+            algorithm: 'aes-128-gcm',
             ...options,
         });
 
@@ -50,7 +50,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "aes-192-ccm"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'aes-192-ccm',
+            algorithm: 'aes-192-ccm',
             ...options,
         });
 
@@ -64,7 +64,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "aes-192-gcm"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'aes-192-gcm',
+            algorithm: 'aes-192-gcm',
             ...options,
         });
 
@@ -78,7 +78,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "aes-256-ccm"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'aes-256-ccm',
+            algorithm: 'aes-256-ccm',
             ...options,
         });
 
@@ -92,7 +92,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "aes-256-gcm"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'aes-256-gcm',
+            algorithm: 'aes-256-gcm',
             ...options,
         });
 
@@ -106,7 +106,7 @@ describe.only('Testing "./lib/session-queue"', () => {
 
     it('Encrypt/Decrypt UUIDv4 -> "chacha20-poly1305"', () => {
         const queue = new SessionQueue({
-            cipherAlgorithm: 'chacha20-poly1305',
+            algorithm: 'chacha20-poly1305',
             ...options,
         });
 
@@ -133,7 +133,7 @@ describe.only('Testing "./lib/session-queue"', () => {
         } catch (err) {
             reject(err);
         }
-    }));
+    })).timeout(550);
 
     it('Create 2 new sessions', () => new Promise<void>(async (resolve, reject) => {
         try {
@@ -160,5 +160,5 @@ describe.only('Testing "./lib/session-queue"', () => {
         } catch (err) {
             reject(err);
         }
-    }));
+    })).timeout(800);
 });

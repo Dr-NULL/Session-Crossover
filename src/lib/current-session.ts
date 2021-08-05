@@ -1,9 +1,9 @@
-import { join } from 'path';
+import { resolve } from 'path';
 import * as fsPromises from 'fs/promises';
 
 import { Current, Options } from './interfaces';
 import { AESCrypto } from '../tool/aes-crypto';
-import { WrongUuidProvidedError } from './errors';
+import { FileCorruptedError } from './errors';
 
 export class CurrentSession<T = any> implements Current<T> {
     private _aes: AESCrypto;
@@ -37,7 +37,7 @@ export class CurrentSession<T = any> implements Current<T> {
         this._uuid = uuid;
         this._maxAge = options.maxAge ?? 30000;
         
-        this._path = join(options.path, `${uuid}.sus`);
+        this._path = resolve(options.path, `${uuid}.sus`);
         this._clock = setTimeout(this.destroy.bind(this), options.maxAge);
     }
 
@@ -66,15 +66,19 @@ export class CurrentSession<T = any> implements Current<T> {
             return null;
         }
 
-        // Read the file
-        const raw = await fsPromises.readFile(this._path);
-        const iv = raw.slice(0, this._aes.ivLength);
-        const data = raw.slice(this._aes.ivLength);
-
-        // Decrypt the content
-        const decr = this._aes.decrypt(iv, data);
-        const text = decr.toString('utf-8');
-        return JSON.parse(text);
+        try {
+            // Read the file
+            const raw = await fsPromises.readFile(this._path);
+            const iv = raw.slice(0, this._aes.ivLength);
+            const data = raw.slice(this._aes.ivLength);
+    
+            // Decrypt the content
+            const decr = this._aes.decrypt(iv, data);
+            const text = decr.toString('utf-8');
+            return JSON.parse(text);
+        } catch (err) {
+            throw new FileCorruptedError(err.message);
+        }
     }
 
     async save(value: T): Promise<void> {
@@ -83,14 +87,18 @@ export class CurrentSession<T = any> implements Current<T> {
             return;
         }
 
-        // Convert the data
-        const text = JSON.stringify(value, null, '    ');
-        const byte = Buffer.from(text, 'utf-8');
-        
-        // Encrypt the file
-        const encr = this._aes.encrypt(byte);
-        const data = Buffer.concat([ encr.iv, encr.data ]);
-        return fsPromises.writeFile(this._path, data);
+        try {
+            // Convert the data
+            const text = JSON.stringify(value, null, '    ');
+            const byte = Buffer.from(text, 'utf-8');
+            
+            // Encrypt the file
+            const encr = this._aes.encrypt(byte);
+            const data = Buffer.concat([ encr.iv, encr.data ]);
+            return fsPromises.writeFile(this._path, data);
+        } catch (err) {
+            throw new FileCorruptedError(err.message);
+        }
     }
 
     async destroy(): Promise<void> {
@@ -112,5 +120,10 @@ export class CurrentSession<T = any> implements Current<T> {
         if (this._onDestroy) {
             this._onDestroy(this._uuid);
         }
+    }
+
+    rewind(): void {
+        clearTimeout(this._clock);
+        this._clock = setTimeout(this.destroy.bind(this), this._maxAge);
     }
 }

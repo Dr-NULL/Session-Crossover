@@ -3,33 +3,35 @@ import { AESCrypto } from '../tool/aes-crypto';
 import { CurrentSession } from './current-session';
 import { v4 as uuidV4 } from 'uuid';
 import { WrongUuidProvidedError } from './errors';
+import { resolve } from 'path';
 
 export class SessionQueue {
     private _aes: AESCrypto;
-    private _options: Options;
     private _memory: Record<string, CurrentSession>;
+
+    private _options: Options;
+    public get options(): Options {
+        return this._options;
+    }
     
-    private _onDestroy: (uuid?: string) => void | Promise<void>;
-    public get onDestroy(): (uuid?: string) => void | Promise<void> {
-        return this._onDestroy;
-    }
-    public set onDestroy(v: (uuid?: string) => void | Promise<void>) {
-        this._onDestroy = v;
-    }
-
     constructor(options: Options) {
-        this._aes = new AESCrypto(options.cipherAlgorithm ?? 'aes-128-ccm');
-        this._aes.generateKey();
-
+        // Set default values
         this._options = options;
+        this._options.path = resolve(this._options.path);
+        if (!this._options.name) {
+            this._options.name = 'session-id';
+        }
+        if (!this._options.algorithm) {
+            this._options.algorithm = 'aes-128-ccm';
+        }
+
+        this._aes = new AESCrypto(options.algorithm);
+        this._aes.generateKey();
         this._memory = {};
     }
 
     private _handleDestroy(uuid: string): void {
         delete this._memory[uuid];
-        if (this._onDestroy) {
-            this._onDestroy(uuid);
-        }
     }
 
     new<T = any>(): CurrentSession<T> {
@@ -103,5 +105,14 @@ export class SessionQueue {
             out += ((out) ? '-' : '') + byte.toString('hex');
         }
         return out;
+    }
+
+    findByHex(hex: string): CurrentSession {
+        const uuid = this.hex2uuid(hex);
+        return this._memory[uuid] ?? null;
+    }
+
+    findByUuid(uuid: string): CurrentSession {
+        return this._memory[uuid];
     }
 }
