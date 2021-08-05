@@ -1,6 +1,8 @@
+import { AESAlgorithm } from '../../tool/aes-crypto/interfaces';
+
 export interface Options {
     path: string;
     name?: string;
-    expires?: number;
-    hashLength?: number;
+    maxAge?: number;
+    cipherAlgorithm?: AESAlgorithm;
 }

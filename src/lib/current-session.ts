@@ -1,83 +1,116 @@
-import { File } from '../tool/fsys';
-import { Current } from './interfaces';
+import { join } from 'path';
+import * as fsPromises from 'fs/promises';
+
+import { Current, Options } from './interfaces';
+import { AESCrypto } from '../tool/aes-crypto';
+import { WrongUuidProvidedError } from './errors';
 
 export class CurrentSession<T = any> implements Current<T> {
-    private _killed: boolean;
+    private _aes: AESCrypto;
+    private _path: string;
     private _clock: NodeJS.Timeout;
-    private _file: File;
-
+    
     private _uuid: string;
     public get uuid(): string {
         return this._uuid;
     }
 
-    private _expires: number;
-    public get timeout(): number {
-        return this._expires;
+    private _maxAge: number;
+    public get maxAge(): number {
+        return this._maxAge;
     }
 
-    private _onDestroy: (hash: string) => void;
-    public get onDestroy(): (hash: string) => void {
+    private _onDestroy: (uuid?: string) => void | Promise<void>;
+    public get onDestroy(): (uuid?: string) => void | Promise<void> {
         return this._onDestroy;
     }
-    public set onDestroy(v: (hash: string) => void) {
+    public set onDestroy(v: (uuid?: string) => void | Promise<void>) {
         this._onDestroy = v;
     }
 
-    constructor(uuid: string, expires: number, folder: string) {
-        this._expires = expires;
-        this._killed = false;
+    constructor(
+        aes: AESCrypto,
+        uuid: string,
+        options: Pick<Options, 'path' | 'maxAge'>
+    ) {
+        this._aes = aes;
         this._uuid = uuid;
-        this._file = new File(`${folder}/${uuid}.json`);
-
-        this._clock = setTimeout(
-            this._onTimeout.bind(this),
-            this._expires
-        );
+        this._maxAge = options.maxAge ?? 30000;
+        
+        this._path = join(options.path, `${uuid}.sus`);
+        this._clock = setTimeout(this.destroy.bind(this), options.maxAge);
     }
 
-    private async _onTimeout(): Promise<void> {
-        await this.destroy();
-        if (this._onDestroy) {
-            this._onDestroy(this._uuid);
+    async exists(): Promise<boolean> {
+        try {
+            // Check file permissions
+            await fsPromises.access(this._path);
+            return true;
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                // Path doesn't exist
+                return false;
+            } else {
+                // Another kind of error
+                throw err;
+            }
         }
-    }
-
-    rewind(): void {
-        clearTimeout(this._clock);
-        this._clock = setTimeout(
-            this._onTimeout.bind(this),
-            this._expires
-        );
     }
 
     async load(): Promise<T> {
-        if (await this._file.exists()) {
-            const byte = await this._file.read();
-            const text = byte.toString('utf8');
-            return JSON.parse(text);
-        } else {
+        if (!this._clock) {
+            // The file has already destroyed
+            return null;
+        } else if (!await this.exists()) {
+            // The file doesn't exists
             return null;
         }
+
+        // Read the file
+        const raw = await fsPromises.readFile(this._path);
+        const iv = raw.slice(0, this._aes.ivLength);
+        const data = raw.slice(this._aes.ivLength);
+
+        // Decrypt the content
+        const decr = this._aes.decrypt(iv, data);
+        const text = decr.toString('utf-8');
+        return JSON.parse(text);
     }
 
-    save(value: T): Promise<void> {
-        if (!this._killed) {
-            const text = JSON.stringify(value, null, '    ');
-            const byte = Buffer.from(text, 'utf8');
-            return this._file.write(byte);
-        } else {
-            return Promise.resolve();
+    async save(value: T): Promise<void> {
+        // The file has already destroyed
+        if (!this._clock) {
+            return;
         }
+
+        // Convert the data
+        const text = JSON.stringify(value, null, '    ');
+        const byte = Buffer.from(text, 'utf-8');
+        
+        // Encrypt the file
+        const encr = this._aes.encrypt(byte);
+        const data = Buffer.concat([ encr.iv, encr.data ]);
+        return fsPromises.writeFile(this._path, data);
     }
 
     async destroy(): Promise<void> {
+        // The file has already destroyed
+        if (!this._clock) {
+            return null;
+        }
+
+        // Clear the timer
         clearTimeout(this._clock);
-        this._killed = true;
         this._clock = null;
 
-        if (await this._file.exists()) {
-            await this._file.delete();
+        // Destroy the file
+        if (await this.exists()) {
+            await fsPromises.rm(this._path);
+        }
+
+        // Execute the callback
+        if (this._onDestroy) {
+            this._onDestroy(this._uuid);
         }
     }
 }
